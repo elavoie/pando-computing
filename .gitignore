@@ -1,0 +1,4 @@
+.package.json.swp
+node_modules/
+public/bundle.js
+public/volunteer.js

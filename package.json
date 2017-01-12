@@ -1,0 +1,40 @@
+{
+  "name": "pando",
+  "version": "0.1.0",
+  "description": "Distribute processing of a stream of items to volunteers on the web.",
+  "bin": {
+    "pando": "bin/index.js"
+  },
+  "main": "src/index.js",
+  "scripts": {
+    "postinstall": "browserify src/browser.js -r -s volunteer -o public/volunteer.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elavoie/pando.git"
+  },
+  "keywords": [
+    "stream",
+    "distributed",
+    "processing",
+    "volunteer"
+  ],
+  "author": "Erick Lavoie",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/elavoie/pando/issues"
+  },
+  "homepage": "https://github.com/elavoie/pando#readme",
+  "dependencies": {
+    "browserify": "^13.3.0",
+    "debug": "^2.6.0",
+    "express": "^4.4.5",
+    "minimist": "^1.2.0",
+    "pull-lend-stream": "^1.0.0",
+    "pull-limit": "^1.0.1",
+    "pull-stream": "^3.5.0",
+    "pull-sync": "^2.0.0",
+    "pull-ws": "^3.2.8"
+  }
+}

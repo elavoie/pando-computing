@@ -1,0 +1,34 @@
+usage: pando MODULE [OPTIONS] ITEM1, ITEM2, ...
+
+Processes items using the module and output the resulting values on the
+standard output. Processing happens on volunteer processes in a web browser on
+the same or on another machine.  Volunteers may join at any time and will be
+given newer jobs as long as they stay available.  They may stop before
+finishing a given job in which case the incomplete job will be transparently
+reassigned to another volunteer.
+
+Module is the file path to a self-contained "bundle" that uses the
+Universal-Module Definition format such as those created by browserify. To be
+compatible, when loaded it needs to have a property '/pando/1.0.0' that is a
+function that takes a single value and a callback as arguments.
+
+Options (default?):
+    --http=PORT (true, PORT=5000) 
+                Serve volunteer code through http.
+                (volunteers will connect back through a websocket)
+
+    --heroku    (false)           
+                Serve volunteer code through http on a public heroku server.
+                (volunteers will connect back through a websocket)
+
+    --local     (false)
+                Does not open to volunteers but loads the module, and directly
+                processes items one-by-one.
+                Useful for testing the module on a few sample items.
+
+Items can be numbers, file paths, urls, or strings:
+    * Numbers are mapped to JavaScript numbers;
+    * File paths or urls are read and mapped to JavaScript ArrayBuffers. It is
+      the responsibility of the module to convert that ArrayBuffer to an
+      appropriate format for processing;
+    * Otherwise the literal item is mapped to a JavaScript string.
