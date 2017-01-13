@@ -1,13 +1,14 @@
 #!/usr/bin/env node
-var path = require('path')
 var pull = require('pull-stream')
 var debug = require('debug')
 var log = debug('pando')
-var parse = require(path.join(__dirname, '..', 'src', 'parse.js'))
-var args = parse(process.argv.slice(2))
-var httpProcessor = require(path.join(__dirname, '..', 'src', 'http-processor.js'))
 var lendStream = require('pull-lend-stream')
+var parse = require('../src/parse.js')
+var httpProcessor = require('../src/http-processor.js')
+var herokuProcessor = require('../src/heroku-processor.js')
 var bundle = require('../src/bundle.js')
+
+var args = parse(process.argv.slice(2))
 
 bundle(args.module, function (err, bundlePath) {
   if (err) {
@@ -20,7 +21,13 @@ bundle(args.module, function (err, bundlePath) {
     processor = pull.asyncMap(require(args.module)['/pando/1.0.0'])
   } else {
     var lender = lendStream()
-    processor = httpProcessor(lender, { port: args.http, bundle: bundlePath })
+    processor = lender
+
+    httpProcessor(lender, { port: args.http, bundle: bundlePath })
+
+    if (args.heroku) {
+      herokuProcessor(lender)
+    }
   }
 
   pull(

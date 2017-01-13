@@ -1,0 +1,19 @@
+{
+  "name": "pando-heroku",
+  "version": "1.0.0",
+  "dependencies": {
+    "busboy": "^0.2.13",
+    "express": "^4.4.5",
+    "pull-lend-stream": "^1.0.0",
+    "pull-limit": "^1.0.1",
+    "pull-stream": "^3.5.0",
+    "pull-sync": "^2.0.0",
+    "pull-ws": "elavoie/pull-ws"
+  },
+  "engines": {
+    "node": "^7.2.0"
+  },
+  "scripts": {
+    "start": "DEBUG=* node index.js"
+  }
+}

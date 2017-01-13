@@ -34,7 +34,8 @@
     "pull-lend-stream": "^1.0.0",
     "pull-limit": "^1.0.1",
     "pull-stream": "^3.5.0",
-    "pull-sync": "^2.0.0",
-    "pull-ws": "^3.2.8"
+    "pull-sync": "^2.0.1",
+    "pull-ws": "^3.2.8",
+    "request": "^2.79.0"
   }
 }
