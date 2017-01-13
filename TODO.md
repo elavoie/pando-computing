@@ -5,3 +5,6 @@
 [ ] Add support for grid5k (--grid5k=N (false, N=0))
 [ ] Add support for stdin
 [ ] Add integration with Twitter to enable volunteers to connect automatically to newer streams produced by a specific user
+[ ] File paths or urls are read and mapped to JavaScript ArrayBuffers. It is
+    the responsibility of the module to convert that ArrayBuffer to an
+    appropriate format for processing;
