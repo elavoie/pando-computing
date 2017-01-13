@@ -20,7 +20,13 @@ console.log('http server listening on %d', port)
 
 var lender = lendStream()
 
-var clientId = JSON.parse(fs.readFileSync('./config.json'))['clientId']
+var configFile = path.join(__dirname, 'config.json')
+try {
+  var config = JSON.parse(fs.readFileSync(configFile))
+} catch (e) {
+  throw new Error('Missing ' + configFile + ' or invalid JSON format')
+}
+var clientId = config['clientId']
 var clientPath = '/' + clientId
 console.log('Opening websocket connection for client on ' + clientPath)
 

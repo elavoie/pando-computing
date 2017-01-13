@@ -24,7 +24,12 @@ function upload (files, target, cb) {
 }
 
 module.exports = function (lender) {
-  var config = JSON.parse(fs.readFileSync(path.join(__dirname, '../heroku/config.json')))
+  var configFile = path.join(__dirname, '../heroku/config.json')
+  try {
+    var config = JSON.parse(fs.readFileSync(configFile))
+  } catch (e) {
+    throw new Error('Missing ' + configFile + ' or invalid JSON format')
+  }
   var clientId = config['clientId']
   var host = config['host']
   var target = 'http://' + host + '/' + clientId + '/upload'

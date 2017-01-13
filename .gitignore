@@ -1,4 +1,7 @@
-.package.json.swp
+*.swp
+heroku/config.json
+heroku/public/volunteer.js
+heroku/public/bundle.js
 node_modules/
 public/bundle.js
 public/volunteer.js
