@@ -26,13 +26,32 @@
     </script>
   </head>
 <body>
+  <p>If the connection is not automatically established after a few seconds,
+  alternatively try with <a id='ws-link' href='#ws'>WebSocket</a> or <a id='webrtc-link' href='#webrtc'>WebRTC</a>.
+  </p>
+  <script>
+    var wsLink = document.getElementById('ws-link')
+    wsLink.onclick = function () {
+      window.location.reload()
+    }
+    var webrtcLink = document.getElementById('webrtc-link')
+    webrtcLink.onclick = function () {
+      window.location.reload()
+    }
+  </script>
   <h1>console.log</h1>
   <ul id='console'></ul>
   <script src='volunteer.js'></script>
   <script src='bundle.js'></script>
   <script>
-    var host = location.origin.replace(/^http/, 'ws')
-    volunteer(host, bundle)
+    var host = location.origin.replace(/^http/, 'ws') + '/volunteer'
+    if (location.hash === '#ws') {
+      volunteer['ws'](host, bundle)
+    } else if (location.hash === '#webrtc') {
+      volunteer['webrtc'](host, bundle)
+    } else {
+      volunteer['webrtc'](host, bundle)
+    }
   </script>
 </body>
 </html>

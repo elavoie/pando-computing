@@ -6,6 +6,30 @@ var limit = require('pull-limit')
 var path = require('path')
 var debug = require('debug')
 var log = debug('pando:http-processor')
+var ws = require('ws')
+var Peer = require('simple-peer')
+var wrtc = require('wrtc')
+var toPull = require('stream-to-pull-stream')
+
+function connectTo (stream) {
+  return function (err, s) {
+    if (err) {
+      if (stream.close) return stream.close(err)
+
+      pull(
+        pull.error(err),
+        stream
+      )
+      return
+    }
+
+    pull(
+      s,
+      limit(stream),
+      s
+    )
+  }
+}
 
 module.exports = function (lender, options) {
   var app = express()
@@ -24,26 +48,41 @@ module.exports = function (lender, options) {
 
   console.error('http server listening on %d', port)
 
-  createServer({server: httpServer}, function (stream) {
+  createServer({server: httpServer, path: '/volunteer'}, function (stream) {
     log('websocket connection open for volunteer')
-    lender.lendStream(function (err, s) {
-      if (err) {
-        if (stream.close) return stream.close(err)
-
-        pull(
-          pull.error(err),
-          stream
-        )
-        return
-      }
-
-      pull(
-        s,
-        limit(stream),
-        s
-      )
-    })
+    lender.lendStream(connectTo(stream))
   })
+
+  new ws.Server({server: httpServer, path: '/volunteer-webrtc'})
+    .on('connection', function (ws) {
+      log('webrtc handshake')
+      var peer = new Peer({ wrtc: wrtc })
+
+      // Signal through WebSocket
+      ws.on('message', function incoming (message) {
+        log('MESSAGE', message)
+        peer.signal(JSON.parse(message))
+      })
+
+      peer.on('signal', function (data) {
+        log('SIGNAL', data)
+        ws.send(JSON.stringify(data))
+      })
+
+      // Connect stream
+      peer.on('connect', function () {
+        log('webrtc connection open for volunteer')
+        ws.close()
+        var stream = toPull.duplex(peer)
+        lender.lendStream(connectTo(stream))
+      })
+
+      peer.on('error', function (err) {
+        console.error(err)
+        peer.destroy()
+      })
+    })
+  console.log('Listening for WebRTC connections on http://localhost:' + port + '/volunteer-webrtc')
 
   return lender
 }

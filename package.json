@@ -35,7 +35,12 @@
     "pull-limit": "^1.0.1",
     "pull-stream": "^3.5.0",
     "pull-sync": "^2.0.1",
-    "pull-ws": "^3.2.8",
-    "request": "^2.79.0"
+    "pull-ws": "elavoie/pull-ws",
+    "request": "^2.79.0",
+    "simple-peer": "elavoie/simple-peer",
+    "simple-websocket": "^4.1.0",
+    "stream-to-pull-stream": "^1.7.2",
+    "wrtc": "0.0.61",
+    "ws": "^1.1.1"
   }
 }
