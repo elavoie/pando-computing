@@ -1,0 +1,14 @@
+#!/usr/bin/env node
+var electron = require('electron')
+var BrowserWindow = electron.BrowserWindow
+
+var n = process.argv[2] || 1
+var url = process.argv[3] || 'http://localhost:5000'
+var windows = []
+
+electron.app.on('ready', function () {
+    for (var i = 0; i < n; ++i) {
+      windows.push(new BrowserWindow({ show: false, webPreferrences: { offscreen: true } }))
+      windows[i].loadURL(url)
+    }
+})
