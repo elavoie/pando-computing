@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+try {
 var electron = require('electron')
 var BrowserWindow = electron.BrowserWindow
 
@@ -12,3 +13,14 @@ electron.app.on('ready', function () {
       windows[i].loadURL(url)
     }
 })
+
+process.on('SIGINT', function() {
+    console.log("Caught interrupt signal");
+    windows.forEach(function (w) {
+        w.close()
+    })
+    process.exit();
+});
+} catch (e) {
+    console.error(e)
+}

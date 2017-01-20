@@ -82,7 +82,7 @@ module.exports = function (lender, options) {
         peer.destroy()
       })
     })
-  console.log('Listening for WebRTC connections on http://localhost:' + port + '/volunteer-webrtc')
+  console.log('Serving volunteer code at http://localhost:' + port)
 
   return lender
 }
