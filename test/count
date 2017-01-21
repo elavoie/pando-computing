@@ -1,0 +1,10 @@
+#!/usr/bin/env node
+
+var pull = require('pull-stream')
+var toPull = require('stream-to-pull-stream')
+
+pull(
+    pull.count(),
+    pull.map(function (x) { return String(x) + '\n' }),
+    toPull.sink(process.stdout)
+)

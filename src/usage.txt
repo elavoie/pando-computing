@@ -25,6 +25,9 @@ OPTIONS (default?):
                 processes items one-by-one.
                 Useful for testing the module on a few sample items.
 
+    --stdin    (false)
+               Read items from the standard input instead.
+
 ITEMS can be numbers, or strings:
     * Numbers are mapped to JavaScript numbers;
     * Otherwise the literal item is mapped to a JavaScript string.

@@ -1,0 +1,20 @@
+#!/usr/bin/env node
+
+var pull = require('pull-stream')
+var toPull = require('stream-to-pull-stream')
+var split = require('split')
+
+var count = 0
+
+pull(
+    toPull.source(process.stdin.pipe(split())),
+    pull.map(function (x) { 
+        var c = count++
+        if (c*c === Number.parseInt(x)) 
+            return x
+        else 
+            throw new Error('error got ' +  x + ' instead of ' + c*c)
+    }),
+    pull.map(function (x) { return String(x) + '\n' }),
+    toPull.sink(process.stdout)
+)

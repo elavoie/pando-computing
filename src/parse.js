@@ -4,6 +4,8 @@ var debug = require('debug')
 var log = debug('pando:parse')
 var pull = require('pull-stream')
 var parseArgs = require('minimist')
+var toPull = require('stream-to-pull-stream')
+var split = require('split')
 
 function help () {
   console.log(fs.readFileSync(path.join(__dirname, 'usage.txt')).toString())
@@ -50,7 +52,7 @@ module.exports = function (argv) {
   }
 
   if (argv.stdin) {
-    throw new Error('Unsupported --stdin option for now')
+    argv.items = toPull.source(process.stdin.pipe(split()))
   } else {
     argv.items = pull.values(argv._.slice(1))
   }

@@ -63,7 +63,6 @@ module.exports = function (lender, options) {
         log('MESSAGE', message)
         var message = JSON.parse(data)
         var offer = message.offer
-        console.log(message)
         peer.signal(offer)
       })
 
@@ -85,7 +84,7 @@ module.exports = function (lender, options) {
         peer.destroy()
       })
     })
-  console.log('Serving volunteer code at http://localhost:' + port)
+  console.error('Serving volunteer code at http://localhost:' + port)
 
   return lender
 }
