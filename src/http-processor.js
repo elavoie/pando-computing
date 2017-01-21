@@ -59,14 +59,17 @@ module.exports = function (lender, options) {
       var peer = new Peer({ wrtc: wrtc })
 
       // Signal through WebSocket
-      ws.on('message', function incoming (message) {
+      ws.on('message', function incoming (data) {
         log('MESSAGE', message)
-        peer.signal(JSON.parse(message))
+        var message = JSON.parse(data)
+        var offer = message.offer
+        console.log(message)
+        peer.signal(offer)
       })
 
-      peer.on('signal', function (data) {
-        log('SIGNAL', data)
-        ws.send(JSON.stringify(data))
+      peer.on('signal', function (answer) {
+        log('SIGNAL', answer)
+        ws.send(JSON.stringify({ answer: answer }))
       })
 
       // Connect stream

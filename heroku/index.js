@@ -10,6 +10,10 @@ var sync = require('pull-sync')
 var path = require('path')
 var fs = require('fs')
 var Busboy = require('busboy')
+var ws = require('ws')
+var debug = require('debug')
+var log = debug('pando-server')
+var randombytes = require('randombytes')
 
 app.use(express.static(path.join(__dirname, 'public')))
 
@@ -84,4 +88,52 @@ createServer({ server: httpServer, path: '/volunteer' }, function (stream) {
   })
 })
 
+// For WebRTC signaling
+var client = null
+var prospects = {}
+function closeProspect (id) {
+  if (prospects[id]) prospects[id].close()
+}
+new ws.Server({server: httpServer, path: '/' + clientId + '/webrtc-signaling'})
+  .on('connection', function (ws) {
+    log('client connected for webrtc-signaling')
+    ws.on('message', incomingAnswer)
+    client = ws
+  })
+
+new ws.Server({server: httpServer, path: '/volunteer-webrtc'})
+  .on('connection', function (ws) {
+    function remove () {
+      delete prospects[id]
+    }
+    var id = ws.id = randombytes(16).toString()
+    ws.on('message', offerHandler(id))
+    ws.on('close', remove)
+    prospects[id] = ws
+    setTimeout(function () {
+      closeProspect(id)
+    }, 30 * 1000)
+  })
+
+function incomingAnswer (data) {
+  log('INCOMING ANSWER', data)
+  var destination = JSON.parse(data).destination
+  if (prospects.hasOwnProperty(destination)) {
+    prospects[destination].send(data, function (err) {
+      if (err) closeProspect(destination)
+    })
+  } else {
+    log('Unknown destination ' + destination + ', ignoring message')
+  }
+}
+
+function offerHandler (id) {
+  return function incomingOffer (message) {
+    message = JSON.parse(message)
+    message.origin = id
+    log('INCOMING OFFER')
+    log(message)
+    if (client) client.send(JSON.stringify(message))
+  }
+}
 console.log('websocket server created')

@@ -44,6 +44,7 @@
     "ws": "^1.1.1"
   },
   "devDependencies": {
-    "electron": "^1.4.15"
+    "electron": "^1.4.15",
+    "pull-probe": "^1.0.2"
   }
 }

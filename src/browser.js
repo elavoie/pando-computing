@@ -33,10 +33,8 @@ function wrtcConnection (url, bundle) {
   console.log('webrtc handshake')
   ws.on('connect', function () {
     var peer = new Peer({ initiator: true })
-      .on('signal', function (data) {
-        // console.log('SIGNAL')
-        // console.log(JSON.stringify(data))
-        ws.send(JSON.stringify(data))
+      .on('signal', function (offer) {
+        ws.send(JSON.stringify({ offer: offer }))
       })
       .on('connect', function () {
         console.log('webrtc connection established')
@@ -45,13 +43,12 @@ function wrtcConnection (url, bundle) {
       })
       .on('error', function (err) {
         console.log('error: ' + err)
+        ws.destroy()
       })
 
     ws.on('data', function incoming (data) {
-      // console.log('MESSAGE')
       var message = JSON.parse(data)
-      // console.log(JSON.stringify(message))
-      peer.signal(message)
+      peer.signal(message.answer)
     })
   })
 }
@@ -63,5 +60,3 @@ module.exports['ws'] = function (url, bundle) {
 module.exports['webrtc'] = function (url, bundle) {
   wrtcConnection(url, bundle)
 }
-
-

@@ -6,6 +6,34 @@ var log = debug('pando:heroku-processor')
 var request = require('request')
 var fs = require('fs')
 var ws = require('pull-ws')
+var Peer = require('simple-peer')
+var wrtc = require('wrtc')
+var SimpleWebSocket = require('simple-websocket')
+var toPull = require('stream-to-pull-stream')
+var limit = require('pull-limit')
+var probe = require('pull-probe')
+
+function connectTo (stream) {
+  return function (err, s) {
+    if (err) {
+      if (stream.close) return stream.close(err)
+
+      pull(
+        pull.error(err),
+        stream
+      )
+      return
+    }
+
+    pull(
+      s,
+      probe('heroku-wrtc-stream:before'),
+      limit(stream),
+      probe('heroku-wrtc-stream:after'),
+      s
+    )
+  }
+}
 
 function upload (files, target, cb) {
   log('upload([' + files + '], ' + target + ', [' + (typeof cb) + ']')
@@ -38,7 +66,8 @@ module.exports = function (lender) {
   // Update heroku server with the latest info
   upload([
     path.join(publicDir, 'volunteer.js'),
-    path.join(publicDir, 'bundle.js')
+    path.join(publicDir, 'bundle.js'),
+    path.join(publicDir, 'index.html')
   ], target, function () {
     var target = 'ws://' + host + '/' + clientId
     log('connecting to ' + target)
@@ -56,10 +85,46 @@ module.exports = function (lender) {
 
         pull(
           s,
-          sync(stream),
+          probe('heroku-ws-stream:before'),
+          sync(pull(
+            probe('heroku-ws-stream-synced:before'),
+            stream,
+            probe('heroku-ws-stream-synced:after')
+          )),
+          probe('heroku-ws-stream:after'),
           s
         )
         log('stream connected to heroku server')
+      })
+    })
+
+    var webrtcSignals = new SimpleWebSocket(target + '/webrtc-signaling')
+    log('connecting to webrtc signaling socket')
+    webrtcSignals.on('connect', function () {
+      log('connected to webrtc signaling socket')
+
+      webrtcSignals.on('data', function (data) {
+        var message = JSON.parse(data)
+        var origin = message.origin
+        var offer = message.offer
+
+        var peer = new Peer({ wrtc: wrtc })
+        var stream = toPull.duplex(peer)
+        peer.on('signal', function (answer) {
+          webrtcSignals.send(JSON.stringify({
+            destination: origin,
+            answer: answer
+          }))
+        })
+        .on('error', function (err) {
+          log('error: ' + err)
+        })
+        .on('connect', function () {
+          log('webrtc connection established')
+          lender.lendStream(connectTo(stream))
+        })
+
+        peer.signal(offer)
       })
     })
   })
