@@ -5,7 +5,7 @@ var log = debug('pando:parse')
 var pull = require('pull-stream')
 var parseArgs = require('minimist')
 
-function help() {
+function help () {
   console.log(fs.readFileSync(path.join(__dirname, 'usage.txt')).toString())
   process.exit(0)
 }
@@ -32,10 +32,8 @@ module.exports = function (argv) {
   log('after minimist: ')
   log(argv)
 
-  if (argv._.length === 0 ||
-      argv.help ||
-      (argv._.length === 1 && !argv.stdin)) {
-    help() 
+  if (argv._.length === 0 || argv.help) {
+    help()
   }
 
   argv.module = path.join(process.cwd(), argv._[0])
