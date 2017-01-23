@@ -129,5 +129,6 @@ module.exports = function (lender) {
     })
   })
 
+  console.error('Serving volunteer code at http://' + host)
   return lender
 }

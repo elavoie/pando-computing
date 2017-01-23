@@ -5,12 +5,14 @@ var BrowserWindow = electron.BrowserWindow
 
 var n = process.argv[2] || 1
 var url = process.argv[3] || 'http://localhost:5000'
-var windows = []
+var windows = new Array(n)
 
 electron.app.on('ready', function () {
     for (var i = 0; i < n; ++i) {
-      windows.push(new BrowserWindow({ show: false, webPreferrences: { offscreen: true } }))
-      windows[i].loadURL(url)
+      //setTimeout(function () {
+        windows[i] = (new BrowserWindow({ show: false, webPreferrences: { offscreen: true } }))
+        windows[i].loadURL(url)
+      //}, Math.random() * 1000 + 500)
     }
 })
 

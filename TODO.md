@@ -1,5 +1,3 @@
-[ ] Add support for stdin
-[ ] List http interfaces where volunteers can connect on startup
 [ ] Fix closing bug by adding a close method on lenders
 [ ] Plan demo and talk
     * Demo a few unixy processing pipelines
@@ -20,3 +18,4 @@
 [ ] Create pull-request for adding path option to pull-ws
 [x] Add support for WebRTC with a direct connection to the client
     * Adapt heroku code to enable WebRTC signaling
+[x] Add support for stdin
