@@ -12,8 +12,10 @@ pull(
         var c = count++
         if (c*c === Number.parseInt(x)) 
             return x
-        else 
-            throw new Error('error got ' +  x + ' instead of ' + c*c)
+        else {
+            console.error('error got ' +  x + ' instead of ' + c*c)
+            process.exit(1)
+        }
     }),
     pull.map(function (x) { return String(x) + '\n' }),
     toPull.sink(process.stdout)

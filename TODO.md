@@ -1,3 +1,4 @@
+[ ] Test scaling with volunteer-tabs
 [ ] Fix closing bug by adding a close method on lenders
 [ ] Plan demo and talk
     * Demo a few unixy processing pipelines

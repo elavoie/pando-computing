@@ -103,6 +103,10 @@ module.exports = function (lender) {
     webrtcSignals.on('connect', function () {
       log('connected to webrtc signaling socket')
 
+      webrtcSignals.on('error', function (err) {
+        console.error('webrtc signal error: ' + err)
+      })
+
       webrtcSignals.on('data', function (data) {
         var message = JSON.parse(data)
         var origin = message.origin
