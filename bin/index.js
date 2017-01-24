@@ -10,6 +10,12 @@ var bundle = require('../src/bundle.js')
 
 var args = parse(process.argv.slice(2))
 
+process.stdout.on('error', function (err) {
+  if (err.code === 'EPIPE') {
+    process.exit(1)
+  }
+})
+
 bundle(args.module, function (err, bundlePath) {
   if (err) {
     console.error(err)
@@ -46,4 +52,3 @@ bundle(args.module, function (err, bundlePath) {
       })
   )
 })
-

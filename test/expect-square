@@ -5,6 +5,12 @@ var toPull = require('stream-to-pull-stream')
 var split = require('split')
 
 var count = 0
+ 
+process.stdout.on('error', function( err ) {
+  if (err.code == "EPIPE") {
+    process.exit(1);
+  }
+});
 
 pull(
     toPull.source(process.stdin.pipe(split())),
@@ -13,7 +19,7 @@ pull(
         if (c*c === Number.parseInt(x)) 
             return x
         else {
-            console.error('error got ' +  x + ' instead of ' + c*c)
+            process.stderr.write('error got ' +  x + ' instead of ' + c*c + '\n')
             process.exit(1)
         }
     }),
