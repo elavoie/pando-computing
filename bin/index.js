@@ -7,8 +7,13 @@ var parse = require('../src/parse.js')
 var httpProcessor = require('../src/http-processor.js')
 var herokuProcessor = require('../src/heroku-processor.js')
 var bundle = require('../src/bundle.js')
+var electronWebRTC = require('electron-webrtc')
+var SegfaultHandler = require('segfault-handler')
+SegfaultHandler.registerHandler('crash.log') // With no argument, SegfaultHandler will generate a generic log file name
 
 var args = parse(process.argv.slice(2))
+
+var wrtc = electronWebRTC({ headless: args.headless })
 
 process.stdout.on('error', function (err) {
   if (err.code === 'EPIPE') {
@@ -29,10 +34,10 @@ bundle(args.module, function (err, bundlePath) {
     var lender = lendStream()
     processor = lender
 
-    httpProcessor(lender, { port: args.http, bundle: bundlePath })
+    httpProcessor(lender, { port: args.http, bundle: bundlePath, wrtc: wrtc })
 
     if (args.heroku) {
-      herokuProcessor(lender)
+      herokuProcessor(lender, { wrtc: wrtc })
     }
   }
 

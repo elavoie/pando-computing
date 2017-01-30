@@ -1,9 +1,6 @@
-[ ] Test scaling with volunteer-tabs
 [ ] Fix closing bug by adding a close method on lenders
-[ ] Plan demo and talk
-    * Demo a few unixy processing pipelines
-    * Demo scaling to 10-100 nodes
-    * Explain the proposal for scaling up
+[ ] Rewrite pando tool for electron to remove the overhead of electron-webrtc
+[ ] Test scaling with volunteer-tabs
 [ ] Refactor to clarify newer abstractions
 [ ] Add a scalable connectivity scheme
 [ ] Create a pull module for requesting values and producing results 

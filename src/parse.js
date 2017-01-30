@@ -16,9 +16,10 @@ var options = {
   alias: {
     'help': ['h']
   },
-  boolean: ['local', 'heroku', 'stdin', 'help'],
+  boolean: ['local', 'heroku', 'headless', 'stdin', 'help'],
   default: {
     http: 5000,
+    headless: false,
     heroku: false,
     stdin: false,
     help: false,

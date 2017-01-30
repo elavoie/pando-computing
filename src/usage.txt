@@ -28,6 +28,9 @@ OPTIONS (default?):
     --stdin    (false)
                Read items from the standard input instead.
 
+    --headless (false)
+               Start pando in headless mode (package electron-webrtc requires a framebuffer)
+
 ITEMS can be numbers, or strings:
     * Numbers are mapped to JavaScript numbers;
     * Otherwise the literal item is mapped to a JavaScript string.

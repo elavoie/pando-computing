@@ -8,7 +8,6 @@ var debug = require('debug')
 var log = debug('pando:http-processor')
 var ws = require('ws')
 var Peer = require('simple-peer')
-var wrtc = require('wrtc')
 var toPull = require('stream-to-pull-stream')
 var os = require('os')
 
@@ -61,6 +60,7 @@ module.exports = function (lender, options) {
   var app = express()
   options = options || {}
   options.port = options.port || 5000
+  options.wrtc = options.wrtc || require('electron-webrtc')()
   log('options:')
   log(options)
 
@@ -80,7 +80,7 @@ module.exports = function (lender, options) {
   new ws.Server({server: httpServer, path: '/volunteer-webrtc'})
     .on('connection', function (ws) {
       log('webrtc handshake')
-      var peer = new Peer({ wrtc: wrtc })
+      var peer = new Peer({ wrtc: options.wrtc })
 
       // Signal through WebSocket
       ws.on('message', function incoming (data) {

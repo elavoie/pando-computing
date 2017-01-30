@@ -7,7 +7,6 @@ var request = require('request')
 var fs = require('fs')
 var ws = require('pull-ws')
 var Peer = require('simple-peer')
-var wrtc = require('wrtc')
 var SimpleWebSocket = require('simple-websocket')
 var toPull = require('stream-to-pull-stream')
 var limit = require('pull-limit')
@@ -51,7 +50,9 @@ function upload (files, target, cb) {
   })
 }
 
-module.exports = function (lender) {
+module.exports = function (lender, options) {
+  options = options || {}
+  options.wrtc = options.wrtc || require('electron-webrtc')()
   var configFile = path.join(__dirname, '../heroku/config.json')
   try {
     var config = JSON.parse(fs.readFileSync(configFile))
@@ -112,7 +113,7 @@ module.exports = function (lender) {
         var origin = message.origin
         var offer = message.offer
 
-        var peer = new Peer({ wrtc: wrtc })
+        var peer = new Peer({ wrtc: options.wrtc })
         var stream = toPull.duplex(peer)
         peer.on('signal', function (answer) {
           webrtcSignals.send(JSON.stringify({
