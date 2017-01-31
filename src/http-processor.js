@@ -11,7 +11,7 @@ var Peer = require('simple-peer')
 var toPull = require('stream-to-pull-stream')
 var os = require('os')
 
-function connectTo (stream) {
+function connectTo (stream, options) {
   return function (err, s) {
     if (err) {
       if (stream.close) return stream.close(err)
@@ -25,7 +25,7 @@ function connectTo (stream) {
 
     pull(
       s,
-      limit(stream),
+      limit(stream, options.limit),
       s
     )
   }
@@ -61,6 +61,7 @@ module.exports = function (lender, options) {
   options = options || {}
   options.port = options.port || 5000
   options.wrtc = options.wrtc || require('electron-webrtc')()
+  options.limit = options.limit || 1
   log('options:')
   log(options)
 
@@ -74,7 +75,7 @@ module.exports = function (lender, options) {
 
   createServer({server: httpServer, path: '/volunteer'}, function (stream) {
     log('websocket connection open for volunteer')
-    lender.lendStream(connectTo(stream))
+    lender.lendStream(connectTo(stream, options))
   })
 
   new ws.Server({server: httpServer, path: '/volunteer-webrtc'})
@@ -100,7 +101,7 @@ module.exports = function (lender, options) {
         log('webrtc connection open for volunteer')
         ws.close()
         var stream = toPull.duplex(peer)
-        lender.lendStream(connectTo(stream))
+        lender.lendStream(connectTo(stream, options))
       })
 
       peer.on('error', function (err) {

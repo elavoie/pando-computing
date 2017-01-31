@@ -31,6 +31,9 @@ OPTIONS (default?):
     --headless (false)
                Start pando in headless mode (package electron-webrtc requires a framebuffer)
 
+    --limit=N  (true, N=1)
+               Maximum number of jobs to send to a volunteer before waiting for results
+
 ITEMS can be numbers, or strings:
     * Numbers are mapped to JavaScript numbers;
     * Otherwise the literal item is mapped to a JavaScript string.

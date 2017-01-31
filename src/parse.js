@@ -21,6 +21,7 @@ var options = {
     http: 5000,
     headless: false,
     heroku: false,
+    limit: 1,
     stdin: false,
     help: false,
     local: false,

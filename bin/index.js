@@ -34,10 +34,10 @@ bundle(args.module, function (err, bundlePath) {
     var lender = lendStream()
     processor = lender
 
-    httpProcessor(lender, { port: args.http, bundle: bundlePath, wrtc: wrtc })
+    httpProcessor(lender, { port: args.http, bundle: bundlePath, wrtc: wrtc, limit: args.limit })
 
     if (args.heroku) {
-      herokuProcessor(lender, { wrtc: wrtc })
+      herokuProcessor(lender, { wrtc: wrtc, limit: args.limit })
     }
   }
 
