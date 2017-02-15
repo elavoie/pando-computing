@@ -16,6 +16,35 @@ var log = debug('pando-server')
 log.jobs = debug('pando-server:jobs')
 var randombytes = require('randombytes')
 
+// For WebRTC signaling
+var client = null
+var prospects = {}
+function closeProspect (id) {
+  if (prospects[id]) prospects[id].close()
+}
+
+function incomingAnswer (data) {
+  log('INCOMING ANSWER', data)
+  var destination = JSON.parse(data).destination
+  if (prospects.hasOwnProperty(destination)) {
+    prospects[destination].send(data, function (err) {
+      if (err) closeProspect(destination)
+    })
+  } else {
+    log('Unknown destination ' + destination + ', ignoring message')
+  }
+}
+
+function offerHandler (id) {
+  return function incomingOffer (message) {
+    message = JSON.parse(message)
+    message.origin = id
+    log('INCOMING OFFER')
+    log(message)
+    if (client) client.send(JSON.stringify(message))
+  }
+}
+
 app.use(express.static(path.join(__dirname, 'public')))
 
 var httpServer = http.createServer(app)
@@ -53,6 +82,24 @@ app.post(path.join(clientPath, 'upload'), function (req, res) {
   return req.pipe(busboy)
 })
 
+app.post('/webrtc/answer', function (req, res) {
+  var busboy = new Busboy({ headers: req.headers })
+  log('receiving webrtc answer:')
+  busboy.on('field', function (fieldname, data) {
+    if (fieldname === 'data') {
+      log('answer: ' + data)
+      incomingAnswer(data)
+    } else {
+      log('unexpected field: ' + fieldname)
+    }
+  })
+  busboy.on('finish', function () {
+    res.writeHead(200, { 'Connection': 'close' })
+    res.end('done')
+  })
+  return req.pipe(busboy)
+})
+
 createServer({ server: httpServer, path: '/' + clientId }, function (stream) {
   console.log('websocket connection open for client')
   stream = sync(stream)
@@ -69,7 +116,7 @@ createServer({ server: httpServer, path: '/' + clientId }, function (stream) {
 })
 
 createServer({ server: httpServer, path: '/volunteer' }, function (stream) {
-  console.log('websocket connection open for volunteer')
+  log('websocket connection open for volunteer')
   lender.lendStream(function (err, s) {
     if (err) {
       if (stream.close) return stream.close(err)
@@ -89,12 +136,6 @@ createServer({ server: httpServer, path: '/volunteer' }, function (stream) {
   })
 })
 
-// For WebRTC signaling
-var client = null
-var prospects = {}
-function closeProspect (id) {
-  if (prospects[id]) prospects[id].close()
-}
 new ws.Server({server: httpServer, path: '/' + clientId + '/webrtc-signaling'})
   .on('connection', function (ws) {
     log('client connected for webrtc-signaling')
@@ -116,25 +157,4 @@ new ws.Server({server: httpServer, path: '/volunteer-webrtc'})
     }, 30 * 1000)
   })
 
-function incomingAnswer (data) {
-  log('INCOMING ANSWER', data)
-  var destination = JSON.parse(data).destination
-  if (prospects.hasOwnProperty(destination)) {
-    prospects[destination].send(data, function (err) {
-      if (err) closeProspect(destination)
-    })
-  } else {
-    log('Unknown destination ' + destination + ', ignoring message')
-  }
-}
-
-function offerHandler (id) {
-  return function incomingOffer (message) {
-    message = JSON.parse(message)
-    message.origin = id
-    log('INCOMING OFFER')
-    log(message)
-    if (client) client.send(JSON.stringify(message))
-  }
-}
 console.log('websocket server created')
