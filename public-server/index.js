@@ -139,7 +139,9 @@ createServer({ server: httpServer, path: '/volunteer' }, function (stream) {
 new ws.Server({server: httpServer, path: '/' + clientId + '/webrtc-signaling'})
   .on('connection', function (ws) {
     log('client connected for webrtc-signaling')
-    ws.on('message', incomingAnswer)
+    ws.on('message', function (data) {
+      log('WARNING: unexpected message from client: ' + data) 
+    })
     client = ws
   })
 
