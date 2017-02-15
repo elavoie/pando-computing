@@ -1,8 +1,14 @@
+[ ] Add a scalable connectivity scheme
+    [ ] Make pull-limit dynamically adjustable
+    [ ] Add Ids
+    [ ] Add routing route to public-server
+    [ ] Add coordinator code
+    [ ] Add handling of coordinators
+[ ] Add monitoring abstractions
 [ ] Test scaling with volunteer-tabs
     * Identify bottlenecks (CPU, Memory, Bandwidth)
     * Optimal number of WebRTC connections (that maximizes the number of jobs that can be sent per second)
     * Latency tests between the various grid5k sites
-[ ] Add a scalable connectivity scheme
 [ ] Add option to specify the functor argument using simply the npm package name
 [ ] Add support for starting on additional cores on the same machine (--cores=N (true, N=1)) 
 [ ] Add support for grid5k (--grid5k=N (false, N=0))
