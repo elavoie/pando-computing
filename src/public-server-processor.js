@@ -12,7 +12,7 @@ var toPull = require('stream-to-pull-stream')
 var limit = require('pull-limit')
 var probe = require('pull-probe')
 
-function connectTo (stream) {
+function connectTo (stream, options) {
   return function (err, s) {
     if (err) {
       if (stream.close) return stream.close(err)
@@ -27,7 +27,7 @@ function connectTo (stream) {
     pull(
       s,
       probe('public-server-wrtc-stream:before'),
-      limit(stream),
+      limit(stream, options.limit),
       probe('public-server-wrtc-stream:after'),
       s
     )
@@ -53,6 +53,7 @@ function upload (files, target, cb) {
 module.exports = function (lender, options) {
   options = options || {}
   options.wrtc = options.wrtc || require('electron-webrtc')()
+  options.limit = options.limit || 1
   var configFile = path.join(__dirname, '../public-server/config.json')
   try {
     var config = JSON.parse(fs.readFileSync(configFile))
@@ -126,7 +127,7 @@ module.exports = function (lender, options) {
         })
         .on('connect', function () {
           log('webrtc connection established')
-          lender.lendStream(connectTo(stream))
+          lender.lendStream(connectTo(stream, options))
         })
 
         peer.signal(offer)

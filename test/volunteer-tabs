@@ -10,8 +10,13 @@ var windows = new Array(n)
 electron.app.on('ready', function () {
     for (var i = 0; i < n; ++i) {
       //setTimeout(function () {
+        console.log('loading window ' + (i+1) + '/' + n)
         windows[i] = (new BrowserWindow({ show: false, webPreferrences: { offscreen: true } }))
         windows[i].loadURL(url)
+	windows[i].on('page-title-updated', function (e, t) {
+          console.log('window loaded ' + t)
+          console.log(e)
+        })
       //}, Math.random() * 1000 + 500)
     }
 })
