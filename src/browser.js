@@ -40,6 +40,7 @@ function wrtcConnection (url, bundle) {
         console.log('webrtc connection established')
         var stream = toPull.duplex(peer)
         connectStream(stream, bundle)
+        ws.destroy()
       })
       .on('error', function (err) {
         console.log('error: ' + err)

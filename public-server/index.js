@@ -146,9 +146,10 @@ new ws.Server({server: httpServer, path: '/' + clientId + '/webrtc-signaling'})
 new ws.Server({server: httpServer, path: '/volunteer-webrtc'})
   .on('connection', function (ws) {
     function remove () {
+      log('volunteer ' + id + ' disconnected')
       delete prospects[id]
     }
-    var id = ws.id = randombytes(16).toString()
+    var id = ws.id = randombytes(16).inspect()
     ws.on('message', offerHandler(id))
     ws.on('close', remove)
     prospects[id] = ws
