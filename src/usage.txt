@@ -16,8 +16,8 @@ OPTIONS (default?):
                 Serve volunteer code through http.
                 (volunteers will connect back through a websocket)
 
-    --heroku    (false)           
-                Serve volunteer code through http on a public heroku server.
+    --public    (false)           
+                Serve volunteer code through http on a public server.
                 (volunteers will connect back through a websocket)
 
     --local     (false)

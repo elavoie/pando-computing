@@ -13,6 +13,7 @@ var Busboy = require('busboy')
 var ws = require('ws')
 var debug = require('debug')
 var log = debug('pando-server')
+log.jobs = debug('pando-server:jobs')
 var randombytes = require('randombytes')
 
 app.use(express.static(path.join(__dirname, 'public')))
@@ -60,9 +61,9 @@ createServer({ server: httpServer, path: '/' + clientId }, function (stream) {
 
   pull(
     stream,
-    pull.through(function (j) { console.log('distributing job: ' + j) }),
+    pull.through(function (j) { log.jobs('distributing job: ' + j) }),
     lender,
-    pull.through(function (j) { console.log('sending result: ' + j) }),
+    pull.through(function (j) { log.jobs('sending result: ' + j) }),
     stream
   )
 })

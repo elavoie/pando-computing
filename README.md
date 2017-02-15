@@ -40,8 +40,8 @@ to invalidate results produced by malicious volunteers. Use at your own risks.
                     Serve volunteer code through http.
                     (volunteers will connect back through a websocket)
 
-        --heroku    (false)           
-                    Serve volunteer code through http on a public heroku server.
+        --public    (false)           
+                    Serve volunteer code through http on a public server.
                     (volunteers will connect back through a websocket)
 
         --local     (false)
@@ -60,14 +60,14 @@ to invalidate results produced by malicious volunteers. Use at your own risks.
 This will restrict who can update to the code served to volunteers on the
 heroku server.
 
-    cd <pando-repository>/heroku
+    cd <pando-repository>/public-server
     cp config.example.json config.json
     # Modify 'clientId' property to use a randomly generated alphanumeric value
     
 
 ## Launch the heroku server
 
-    cd <pando-repository>/heroku
+    cd <pando-repository>/public-server
     heroku login
     git init .
     git add *
@@ -76,3 +76,25 @@ heroku server.
     # Modify the 'host' property in config.json
     # to use the hostname provided by heroku
     git push heroku master
+
+# Create a server on Grid5000
+
+## Connect to Grid5000
+
+    ssh <username>@access.grid5000.fr
+    oarsub -I
+
+## Setup Pando
+    <install pando>
+    cd pando/public-server
+    npm install
+    node index.js
+
+## Connecting to Grid5000 with VPN
+
+Setup VPN https://www.grid5000.fr/mediawiki/index.php/VPN
+
+## Setup host in public-server/config.json
+
+    host: "http://<node>.<site>.grid5000.fr:<port>"
+

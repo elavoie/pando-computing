@@ -5,7 +5,7 @@ var log = debug('pando')
 var lendStream = require('pull-lend-stream')
 var parse = require('../src/parse.js')
 var httpProcessor = require('../src/http-processor.js')
-var herokuProcessor = require('../src/heroku-processor.js')
+var publicServerProcessor = require('../src/public-server-processor.js')
 var bundle = require('../src/bundle.js')
 var electronWebRTC = require('electron-webrtc')
 var SegfaultHandler = require('segfault-handler')
@@ -36,8 +36,8 @@ bundle(args.module, function (err, bundlePath) {
 
     httpProcessor(lender, { port: args.http, bundle: bundlePath, wrtc: wrtc })
 
-    if (args.heroku) {
-      herokuProcessor(lender, { wrtc: wrtc })
+    if (args.public) {
+      publicServerProcessor(lender, { wrtc: wrtc })
     }
   }
 

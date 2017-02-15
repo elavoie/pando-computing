@@ -1,0 +1,57 @@
+<html>
+  <head>
+    <style>
+      body {
+        font-family: "Helvetica Neue", helvetica, arial;
+        padding: 15px;
+      }
+
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      ul li {
+        line-height: 1.4;
+      }
+    </style>
+
+    <script>
+      console.log = function (s) {
+        var li = document.createElement('li');
+        li.innerHTML = s;
+        document.querySelector('#console').appendChild(li);
+      }
+    </script>
+  </head>
+<body>
+  <p>If the connection is not automatically established after a few seconds,
+  alternatively try with <a id='ws-link' href='#ws'>WebSocket</a>. You can also retry with <a id='webrtc-link' href='#webrtc'>WebRTC</a>.
+  </p>
+  <script>
+    var wsLink = document.getElementById('ws-link')
+    wsLink.onclick = function () {
+      window.location.reload()
+    }
+    var webrtcLink = document.getElementById('webrtc-link')
+    webrtcLink.onclick = function () {
+      window.location.reload()
+    }
+  </script>
+  <h1>console.log</h1>
+  <ul id='console'></ul>
+  <script src='volunteer.js'></script>
+  <script src='bundle.js'></script>
+  <script>
+    var host = location.origin.replace(/^http/, 'ws') + '/volunteer'
+    if (location.hash === '#ws') {
+      volunteer['ws'](host, bundle)
+    } else if (location.hash === '#webrtc') {
+      volunteer['webrtc'](host, bundle)
+    } else {
+      volunteer['webrtc'](host, bundle)
+    }
+  </script>
+</body>
+</html>

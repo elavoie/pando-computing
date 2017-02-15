@@ -2,7 +2,7 @@ var pull = require('pull-stream')
 var sync = require('pull-sync')
 var path = require('path')
 var debug = require('debug')
-var log = debug('pando:heroku-processor')
+var log = debug('pando:public-server-processor')
 var request = require('request')
 var fs = require('fs')
 var ws = require('pull-ws')
@@ -26,9 +26,9 @@ function connectTo (stream) {
 
     pull(
       s,
-      probe('heroku-wrtc-stream:before'),
+      probe('public-server-wrtc-stream:before'),
       limit(stream),
-      probe('heroku-wrtc-stream:after'),
+      probe('public-server-wrtc-stream:after'),
       s
     )
   }
@@ -53,7 +53,7 @@ function upload (files, target, cb) {
 module.exports = function (lender, options) {
   options = options || {}
   options.wrtc = options.wrtc || require('electron-webrtc')()
-  var configFile = path.join(__dirname, '../heroku/config.json')
+  var configFile = path.join(__dirname, '../public-server/config.json')
   try {
     var config = JSON.parse(fs.readFileSync(configFile))
   } catch (e) {
@@ -64,7 +64,7 @@ module.exports = function (lender, options) {
   var target = 'http://' + host + '/' + clientId + '/upload'
   var publicDir = path.join(__dirname, '..', 'public')
 
-  // Update heroku server with the latest info
+  // Update public server with the latest info
   upload([
     path.join(publicDir, 'volunteer.js'),
     path.join(publicDir, 'bundle.js'),
@@ -86,16 +86,16 @@ module.exports = function (lender, options) {
 
         pull(
           s,
-          probe('heroku-ws-stream:before'),
+          probe('public-server-ws-stream:before'),
           sync(pull(
-            probe('heroku-ws-stream-synced:before'),
+            probe('public-server-ws-stream-synced:before'),
             stream,
-            probe('heroku-ws-stream-synced:after')
+            probe('public-server-ws-stream-synced:after')
           )),
-          probe('heroku-ws-stream:after'),
+          probe('public-server-ws-stream:after'),
           s
         )
-        log('stream connected to heroku server')
+        log('stream connected to public-server server')
       })
     })
 
