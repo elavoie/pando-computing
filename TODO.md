@@ -1,6 +1,6 @@
 [ ] Prepare Demo for Tuesday
   [x] Make the pando executable use the new topology
-  [ ] Commit changes
+  [x] Commit changes
   [ ] Repackage electron-tabs as 'pando-volunteer' executable to easily start multiple volunteers
   [ ] Show the number of leaf nodes as a function of time 
   [ ] Add more statistics about the tree topology (depth, total number of nodes, avg task time)
