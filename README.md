@@ -1,4 +1,4 @@
-# Pando
+# pando-computing
 
 Pando is a decentralized computing commandline tool that enables a stream of
 values to be processed collaboratively by volunteers on the web.
@@ -16,16 +16,27 @@ to invalidate results produced by malicious volunteers. Use at your own risks.
 
 # Install 
 
-    git clone git@github.com:elavoie/pando
-    cd pando
-    npm install
-    npm link
+    npm install -g pando-computing
 
 # Example
 
-    cd <pando-repository>
-    pando examples/square.js 1 2 3 4
+    git clone git@github.com:elavoie/pando-computing
+    cd pando-computing
+    pando examples/square.js 1 2 3 4 5 6 7 8 9 10
     open http://localhost:5000
+
+## Infinite stream
+
+    cd pando-computing
+    test/count | pando examples/square.js --stdin
+
+## Separate server
+
+    npm install -g pando-server
+    pando-server
+
+    # Separate process
+    test/count | pando examples/square.js --host='localhost:5000'
 
 # Usage
 
@@ -41,8 +52,9 @@ to invalidate results produced by malicious volunteers. Use at your own risks.
 
         --host=HOST (true, HOST='localhost', String)
                     Hostname of the bootstrap server. Can be supplied as
-                    'hostname' or 'ipaddr:port'. If HOST is set to null,
-                    the pando-server is started within the same process.
+                    'hostname' or 'ipaddr:port'. If `--host` is not provided
+                    (HOST=null), the pando-server is started within the same
+                    process.
 
         --port=PORT (true, PORT=5000, Number) 
                     Port used by pando-server when HOST=null.
@@ -84,53 +96,13 @@ to invalidate results produced by malicious volunteers. Use at your own risks.
 
 # Enable volunteers to connect from a public http server (on Heroku)
 
-## Generate a unique client ID
-
-This will restrict who can update to the code served to volunteers on the
-heroku server.
-
-    cd <pando-repository>/public-server
-    cp config.example.json config.json
-    # Modify 'clientId' property to use a randomly generated alphanumeric value
-    
-
-## Launch the heroku server
-
-    cd <pando-repository>/public-server
-    heroku login
-    git init .
-    git add *
-    git commit -m "Initial commit"
-    heroku create
-    # Modify the 'host' property in config.json
-    # to use the hostname provided by heroku
-    git push heroku master
-
-# Create a server on Grid5000
-
-## Connect to Grid5000
-
-    ssh <username>@access.grid5000.fr
-    oarsub -I
-
-## Setup Pando
-    <install pando>
-    cd pando/public-server
-    npm install
-    node index.js
-
-## Connecting to Grid5000 with VPN
-
-Setup VPN https://www.grid5000.fr/mediawiki/index.php/VPN
-
-## Setup host in public-server/config.json
-
-    host: "http://<node>.<site>.grid5000.fr:<port>"
+See the [pando-server](https://github.com/elavoie/pando-server) repository
+for information on how to deploy to heroku.
 
 # Storing commonly used arguments in a config.json file
 
 You may create a 'config.json' in the '$HOME/.pando' directory to avoid
-typing hostname, secrets, when invoking pando on the commandline. It should be
+typing `--host=... --secret=...`, when invoking pando on the commandline. It should be
 a valid json file. Currently the following options are supported:
 
 ````
@@ -141,4 +113,27 @@ a valid json file. Currently the following options are supported:
         "
     }
 ````
+
+# Perform experiments on Grid5000
+
+## Connect to Grid5000
+
+    ssh <username>@access.grid5000.fr
+    oarsub -I
+
+## Setup Pando
+
+    <install pando-computing>
+    <install pando-server>
+    pando-server
+    # Separate process
+    pando
+
+## Connecting to Grid5000 with VPN
+
+Setup VPN https://www.grid5000.fr/mediawiki/index.php/VPN
+
+## Setup host in $HOME/.pando/config.json
+
+    host: "http://<node>.<site>.grid5000.fr:<port>"
 

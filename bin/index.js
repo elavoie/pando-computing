@@ -70,7 +70,7 @@ bundle(args.module, function (err, bundlePath) {
       log('creating bootstrap server')
       server = new Server({
         secret: args.secret,
-        publicDir: path.join(__dirname, '../public'),
+        publicDir: path.join(__dirname, '../local-server/public'),
         port: args.port,
         seed: args.seed
       })
