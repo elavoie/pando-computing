@@ -5,3 +5,4 @@ heroku/public/bundle.js
 node_modules/
 public/bundle.js
 public/volunteer.js
+public/config.js
