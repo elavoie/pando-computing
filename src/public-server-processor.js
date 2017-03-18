@@ -117,7 +117,7 @@ module.exports = function (lender, options) {
         var peer = new Peer({ wrtc: options.wrtc })
         var stream = toPull.duplex(peer)
         peer.on('signal', function (answer) {
-          var r = request.post({ 
+          request.post({
             url: 'http://' + host + '/webrtc/answer',
             formData: {
               data: JSON.stringify({
@@ -125,7 +125,7 @@ module.exports = function (lender, options) {
                 answer: answer
               })
             }
-          },  function (err) {
+          }, function (err) {
             if (err) throw err
             log('answer sent')
           })

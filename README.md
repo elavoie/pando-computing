@@ -36,18 +36,47 @@ to invalidate results produced by malicious volunteers. Use at your own risks.
     single value and a callback as arguments.
 
     OPTIONS (default?):
-        --http=PORT (true, PORT=5000) 
-                    Serve volunteer code through http.
-                    (volunteers will connect back through a websocket)
+        --headless  (false, Boolean)
+                    Start electron-wrtc without access to a graphical environment
 
-        --public    (false)           
-                    Serve volunteer code through http on a public server.
-                    (volunteers will connect back through a websocket)
+        --host=HOST (true, HOST='localhost', String)
+                    Hostname of the bootstrap server. Can be supplied as
+                    'hostname' or 'ipaddr:port'. If HOST is set to null,
+                    the pando-server is started within the same process.
 
-        --local     (false)
+        --port=PORT (true, PORT=5000, Number) 
+                    Port used by pando-server when HOST=null.
+
+        --local     (false, Boolean)
                     Does not open to volunteers but loads the module, and directly
-                    processes items one-by-one.
-                    Useful for testing the module on a few sample items.
+                    processes items one-by-one.  Useful for testing the module
+                    on a few sample items.
+
+        --start-idle (false, Boolean)
+                    Whether items should be processed while waiting for
+                    volunteers to connect. Set to true for idle waiting.
+
+        --stdin     (false, Boolean)
+                    Read items from standard input instead, one item per line
+
+        --secret=S  (true, S='INSECURE-SECRET', String)
+                    Alphanumeric string used to connect to the bootstrap server
+                    as root (and only root). Should be the same as the one
+                    supplied to pando-server.  Does not matter when not
+                    communicating with a public server.
+
+    ADVANCED (used for testing, development, and optimization):
+
+        --degree=D  (true, D=10, Number)
+                    Maximum degree of the root (started by this command) and
+                    each other connected volunteer. When new volunteers request
+                    a connection to a node that has reached the maximum degree,
+                    the connection is delegated to one of its children.
+
+        --seed=SEED (true, SEED=RandomInt, Number) 
+                    Seed used to assign identifiers to the node channels with
+                    which they communicate. Providing an integer makes the identifiers
+                    deterministic and replicable.
 
     ITEMS can be numbers, or strings:
         * Numbers are mapped to JavaScript numbers;
@@ -97,4 +126,19 @@ Setup VPN https://www.grid5000.fr/mediawiki/index.php/VPN
 ## Setup host in public-server/config.json
 
     host: "http://<node>.<site>.grid5000.fr:<port>"
+
+# Storing commonly used arguments in a config.json file
+
+You may create a 'config.json' in the '$HOME/.pando' directory to avoid
+typing hostname, secrets, when invoking pando on the commandline. It should be
+a valid json file. Currently the following options are supported:
+
+````
+    {
+        "seed": <number to initialize the pando server when the public server is not used>,
+        "secret": "alphanumeric string for connecting as root",
+        "host": "pando-server hostname or ipaddr:port",
+        "
+    }
+````
 

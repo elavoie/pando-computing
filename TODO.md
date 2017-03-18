@@ -1,10 +1,20 @@
-[ ] Add a scalable connectivity scheme
-    [ ] Make pull-limit dynamically adjustable
-    [ ] Add Ids
-    [ ] Add routing route to public-server
-    [ ] Add coordinator code
-    [ ] Add handling of coordinators
-[ ] Add monitoring abstractions
+[ ] Prepare Demo for Tuesday
+  [x] Make the pando executable use the new topology
+  [ ] Commit changes
+  [ ] Repackage electron-tabs as 'pando-volunteer' executable to easily start multiple volunteers
+  [ ] Show the number of leaf nodes as a function of time 
+  [ ] Add more statistics about the tree topology (depth, total number of nodes, avg task time)
+  [ ] Produce graphs of:
+     [ ] Maximum number of connected nodes
+     [ ] Connected number of nodes over time
+     [ ] Normalized task completion rate (Task nb / Avg task time)
+     [ ] Max throughput with various rate-adjustment strategies
+     [ ] Recovery time during failure
+     [ ] Max throughput after failure as a function of failure rate 
+[ ] Add fault-tolerance for connected children that become unresponsive (close connection after 3avg_task_time)
+[ ] Ensure the design is reversible (works while the number of nodes is growing or shrinking) and elastic (quickly adapts to a high number of nodes that joins or leave)
+[ ] Fix bug where the pull-lend-stream does not end in some cases
+[ ] Fix bug in which the same value is sent multiple times
 [ ] Test scaling with volunteer-tabs
     * Identify bottlenecks (CPU, Memory, Bandwidth)
     * Optimal number of WebRTC connections (that maximizes the number of jobs that can be sent per second)
@@ -26,3 +36,13 @@
 [x] Add support for WebRTC with a direct connection to the client
     * Adapt heroku code to enable WebRTC signaling
 [x] Add support for stdin
+[x] Migrate public-server into its own repository
+[x] Add a scalable connectivity scheme
+    [x] Make pull-limit dynamically adjustable
+    [x] Add Ids
+    [x] Add routing route to public-server
+    [x] Add coordinator code
+    [x] Add handling of coordinators
+    [x] Stop processing once a child connects
+[x] Add monitoring abstractions
+[x] Design adaptative limit based on the rate of results vs rate of values

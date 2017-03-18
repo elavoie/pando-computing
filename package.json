@@ -1,6 +1,6 @@
 {
-  "name": "pando",
-  "version": "0.1.0",
+  "name": "pando-computing",
+  "version": "0.9.0",
   "description": "Distribute processing of a stream of items to volunteers on the web.",
   "bin": {
     "pando": "bin/index.js"
@@ -8,11 +8,11 @@
   "main": "src/index.js",
   "scripts": {
     "postinstall": "browserify src/browser.js -r -s volunteer -o public/volunteer.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tape test/index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/elavoie/pando.git"
+    "url": "git+https://github.com/elavoie/pando-computing.git"
   },
   "keywords": [
     "stream",
@@ -23,9 +23,9 @@
   "author": "Erick Lavoie",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/elavoie/pando/issues"
+    "url": "https://github.com/elavoie/pando-computing/issues"
   },
-  "homepage": "https://github.com/elavoie/pando#readme",
+  "homepage": "https://github.com/elavoie/pando-computing#readme",
   "dependencies": {
     "browserify": "^13.3.0",
     "debug": "^2.6.0",
@@ -36,18 +36,23 @@
     "pull-limit": "^1.0.1",
     "pull-stream": "^3.5.0",
     "pull-sync": "^2.0.1",
-    "pull-ws": "elavoie/pull-ws",
+    "pull-ws": "github:elavoie/pull-ws",
     "request": "^2.79.0",
     "segfault-handler": "^1.0.0",
     "simple-peer": "^6.2.1",
+    "simple-updatable-website": "^1.0.0",
     "simple-websocket": "^4.1.0",
     "split": "^1.0.0",
     "stream-to-pull-stream": "^1.7.2",
+    "tape": "^4.6.3",
+    "webrtc-bootstrap": "^3.0.1",
+    "webrtc-tree-overlay": "^1.0.1",
     "wrtc": "0.0.61",
     "ws": "^1.1.1"
   },
   "devDependencies": {
     "electron": "^1.4.15",
+    "pando-server": "^1.1.0",
     "pull-probe": "^1.0.2"
   }
 }

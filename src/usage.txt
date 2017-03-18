@@ -1,39 +1,53 @@
 usage: pando MODULE [OPTIONS] ITEM1, ITEM2, ...
 
-Processes items using the module and output the resulting values on the
-standard output. Processing happens on volunteer processes in a web browser on
-the same or on another machine.  Volunteers may join at any time and will be
-given newer jobs as long as they stay available.  They may stop before
-finishing a given job in which case the incomplete job will be transparently
-reassigned to another volunteer.
-
 MODULE is the file path to a Node.js module. The module must export an object
 with a property '/pando/1.0.0'. This property must be a function that takes a
 single value and a callback as arguments.
 
 OPTIONS (default?):
-    --http=PORT (true, PORT=5000) 
-                Serve volunteer code through http.
-                (volunteers will connect back through a websocket)
+    --headless  (false, Boolean)
+                Start electron-wrtc without access to a graphical environment
 
-    --public    (false)           
-                Serve volunteer code through http on a public server.
-                (volunteers will connect back through a websocket)
+    --host=HOST (true, HOST='localhost', String)
+                Hostname of the bootstrap server. Can be supplied as
+                'hostname' or 'ipaddr:port'. If HOST is set to null,
+                the pando-server is started within the same process.
 
-    --local     (false)
+    --port=PORT (true, PORT=5000, Number) 
+                Port used by pando-server when HOST=null.
+
+    --local     (false, Boolean)
                 Does not open to volunteers but loads the module, and directly
-                processes items one-by-one.
-                Useful for testing the module on a few sample items.
+                processes items one-by-one.  Useful for testing the module
+                on a few sample items.
 
-    --stdin    (false)
-               Read items from the standard input instead.
+    --start-idle (false, Boolean)
+                Whether items should be processed while waiting for
+                volunteers to connect. Set to true for idle waiting.
 
-    --headless (false)
-               Start pando in headless mode (package electron-webrtc requires a framebuffer)
+    --stdin     (false, Boolean)
+                Read items from standard input instead, one item per line
 
-    --limit=N  (true, N=1)
-               Maximum number of jobs to send to a volunteer before waiting for results
+    --secret=S  (true, S='INSECURE-SECRET', String)
+                Alphanumeric string used to connect to the bootstrap server
+                as root (and only root). Should be the same as the one
+                supplied to pando-server.  Does not matter when not
+                communicating with a public server.
+
+ADVANCED (used for testing, development, and optimization):
+
+    --degree=D  (true, D=10, Number)
+                Maximum degree of the root (started by this command) and
+                each other connected volunteer. When new volunteers request
+                a connection to a node that has reached the maximum degree,
+                the connection is delegated to one of its children.
+
+    --seed=SEED (true, SEED=RandomInt, Number) 
+                Seed used to assign identifiers to the node channels with
+                which they communicate. Providing an integer makes the identifiers
+                deterministic and replicable.
 
 ITEMS can be numbers, or strings:
     * Numbers are mapped to JavaScript numbers;
     * Otherwise the literal item is mapped to a JavaScript string.
+

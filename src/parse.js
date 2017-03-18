@@ -12,21 +12,41 @@ function help () {
   process.exit(0)
 }
 
+var configFile = path.join(process.env.HOME, '.pando/config.json')
+var config = {}
+try {
+  config = JSON.parse(fs.readFileSync(configFile))
+} catch (e) {
+  log('No $HOME/.pando/config.json file found')
+  log(configFile + ' not found, trying the pando directory')
+
+  configFile = path.join(__dirname, '../config.json')
+  try {
+    config = JSON.parse(fs.readFileSync(configFile))
+  } catch (e) {
+    log(configFile + ' not found, expecting all arguments to be supplied on the comandline')
+  }
+}
+
 var options = {
   alias: {
     'help': ['h']
   },
-  boolean: ['local', 'public', 'headless', 'stdin', 'help'],
+  boolean: ['local', 'public', 'headless', 'stdin', 'help', 'start-idle'],
   default: {
-    http: 5000,
-    headless: false,
-    public: false,
+    degree: config['degree'] || 10,
+    port: config['port'] || 5000,
+    host: config['host'] || null,
+    headless: config['headless'] || false,
     limit: 1,
-    stdin: false,
+    stdin: config['stdin'] || false,
     help: false,
-    local: false,
+    local: config['local'] || false,
     module: null,
-    items: pull.values([])
+    items: pull.values([]),
+    secret: config['secret'] || 'INSECURE-SECRET',
+    seed: config['seed'] || null,
+    'start-idle': config['start-idle'] || false
   }
 }
 
@@ -54,9 +74,13 @@ module.exports = function (argv) {
   }
 
   if (argv.stdin) {
-    argv.items = toPull.source(process.stdin.pipe(split()))
+    argv.items = toPull.source(process.stdin.pipe(split(undefined, null, { trailing: false })))
   } else {
     argv.items = pull.values(argv._.slice(1))
+  }
+
+  if (argv.public && !argv.host) {
+    throw new Error('Not hostname provided for public server')
   }
 
   log('returning argv')

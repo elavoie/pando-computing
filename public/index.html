@@ -43,14 +43,15 @@
   <ul id='console'></ul>
   <script src='volunteer.js'></script>
   <script src='bundle.js'></script>
+  <script src='config.js'></script>
   <script>
-    var host = location.origin.replace(/^http/, 'ws') + '/volunteer'
+    var host = location.origin.replace(/^http:\/\//, '')
     if (location.hash === '#ws') {
-      volunteer['ws'](host, bundle)
+      //volunteer['ws'](host, bundle)
     } else if (location.hash === '#webrtc') {
-      volunteer['webrtc'](host, bundle)
+      volunteer['webrtc'](host, bundle, window.pando.config)
     } else {
-      volunteer['webrtc'](host, bundle)
+      volunteer['webrtc'](host, bundle, window.pando.config)
     }
   </script>
 </body>

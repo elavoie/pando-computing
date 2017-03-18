@@ -9,8 +9,10 @@ process.stdout.on('error', function( err ) {
     }
 });
 
+var limit = Number.parseInt(process.argv[2]) - 1 || undefined
+
 pull(
-    pull.count(),
+    pull.count(limit),
     pull.map(function (x) { return String(x) + '\n' }),
     toPull.sink(process.stdout)
 )
