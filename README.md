@@ -22,6 +22,7 @@ to invalidate results produced by malicious volunteers. Use at your own risks.
 
     git clone git@github.com:elavoie/pando-computing
     cd pando-computing
+    npm install        # To install examples/square.js dependencies
     pando examples/square.js 1 2 3 4 5 6 7 8 9 10
     open http://localhost:5000
 
