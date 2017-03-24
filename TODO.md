@@ -1,8 +1,9 @@
 [ ] Prepare Demo for Tuesday
   [x] Make the pando executable use the new topology
   [x] Commit changes
-  [ ] Repackage electron-tabs as 'pando-volunteer' executable to easily start multiple volunteers
-  [ ] Show the number of leaf nodes as a function of time 
+  [x] Repackage electron-tabs as 'pando-volunteer' executable to easily start multiple volunteers
+  [ ] Disconnect the nodes when no status has been provided for more than 5 * status-refresh-interval
+  [ ] Show the number of leaf nodes as a function of time (elasticity)
   [ ] Add more statistics about the tree topology (depth, total number of nodes, avg task time)
   [ ] Produce graphs of:
      [ ] Maximum number of connected nodes

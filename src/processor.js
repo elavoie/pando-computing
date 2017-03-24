@@ -5,6 +5,7 @@ var limit = require('pull-limit')
 var toPull = require('stream-to-pull-stream')
 var toObject = require('pull-stream-function-to-object')
 var debug = require('debug')
+var probe = require('pull-probe')
 
 var processorNb = 0
 
@@ -72,6 +73,7 @@ function createProcessor (node, opts) {
 
       pull(
         stream,
+        probe('processing-input'),
         pull.asyncMap(function (x, cb) {
           x = JSON.parse(x)
           if (processingEnded) {
@@ -81,6 +83,7 @@ function createProcessor (node, opts) {
           }
         }),
         pull.map(function (x) { return String(x) }),
+        probe('processing-output'),
         stream
       )
     })
@@ -121,7 +124,8 @@ function createProcessor (node, opts) {
     }, 100)
   }
 
-  log('creating processor')
+  log('creating processor with options')
+  log(opts)
 
   var periodicReportTimeout = null
   var processingEnded = false
@@ -194,7 +198,8 @@ function createProcessor (node, opts) {
     var summary = {
       processing: (processingStarted && !processingEnded),
       childrenNb: childrenNb,
-      nbLeafNodes: (processingEnded) ? 0 : 1
+      nbLeafNodes: (processingEnded) ? 0 : 1,
+      limits: {}
     }
 
     for (var s in latestStatus) {
@@ -203,6 +208,8 @@ function createProcessor (node, opts) {
       if (typeof n !== 'number') throw new Error('Invalid number of leaf nodes for ' + s + ' in ' + JSON.stringify(latestStatus[s]))
 
       summary.nbLeafNodes += n
+      summary.limits[idSummary(s)] = latestStatus[s].limit
+      summary.childrenNb += latestStatus[s].childrenNb
     }
 
     node.emit('status', summary)
@@ -265,7 +272,9 @@ function createProcessor (node, opts) {
         // the limit will be updated accordingly.
         //
         // TODO: limitedChannel.updateLimit(node.maxDegree * status.nbLeafNodes)
-        limitedChannel.updateLimit(status.nbLeafNodes)
+        status.limit = (status.childrenNb + 1) * node.maxDegree
+        log('updating child(' + idSummary(child.id) + ') limit to ' + status.limit)
+        limitedChannel.updateLimit(status.limit)
       }
       addStatus(child.id, status)
     })
@@ -307,7 +316,9 @@ function createProcessor (node, opts) {
           log('child(' + idSummary(child.id) + ') subStream opened')
           pull(
             subStream,
+            probe('lending-input'),
             limitedChannel,
+            probe('lending-result'),
             subStream
           )
         })

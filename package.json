@@ -34,7 +34,7 @@
     "minimist": "^1.2.0",
     "pando-server": "^1.1.0",
     "pull-lend-stream": "^1.0.0",
-    "pull-limit": "^1.0.1",
+    "pull-limit": "^1.2.1",
     "pull-stream": "^3.5.0",
     "pull-sync": "^2.0.1",
     "pull-ws": "github:elavoie/pull-ws",

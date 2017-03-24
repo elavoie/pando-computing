@@ -26,9 +26,11 @@
     </script>
   </head>
 <body>
+  <!--
   <p>If the connection is not automatically established after a few seconds,
   alternatively try with <a id='ws-link' href='#ws'>WebSocket</a>. You can also retry with <a id='webrtc-link' href='#webrtc'>WebRTC</a>.
   </p>
+  -->
   <script>
     var wsLink = document.getElementById('ws-link')
     wsLink.onclick = function () {
@@ -39,6 +41,8 @@
       window.location.reload()
     }
   </script>
+  <h1>status</h1>
+  <p><a id='status'></a></p>
   <h1>console.log</h1>
   <ul id='console'></ul>
   <script src='volunteer.js'></script>
@@ -46,13 +50,17 @@
   <script src='config.js'></script>
   <script>
     var host = location.origin.replace(/^http:\/\//, '')
+    var processor = null
     if (location.hash === '#ws') {
       //volunteer['ws'](host, bundle)
     } else if (location.hash === '#webrtc') {
-      volunteer['webrtc'](host, bundle, window.pando.config)
+      processor = volunteer['webrtc'](host, bundle, window.pando.config)
     } else {
-      volunteer['webrtc'](host, bundle, window.pando.config)
+      processor = volunteer['webrtc'](host, bundle, window.pando.config)
     }
+    processor.on('status', function (summary) {
+      document.querySelector('#status').textContent = JSON.stringify(summary, null, '    ');
+    })
   </script>
 </body>
 </html>

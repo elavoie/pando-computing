@@ -2,10 +2,7 @@
 var pull = require('pull-stream')
 var debug = require('debug')
 var log = debug('pando')
-// var lendStream = require('pull-lend-stream')
 var parse = require('../src/parse.js')
-// var httpProcessor = require('../src/http-processor.js')
-// var publicServerProcessor = require('../src/public-server-processor.js')
 var bundle = require('../src/bundle.js')
 var electronWebRTC = require('electron-webrtc')
 var SegfaultHandler = require('segfault-handler')
@@ -18,6 +15,10 @@ var os = require('os')
 var fs = require('fs')
 var path = require('path')
 var website = require('simple-updatable-website')
+var http = require('http')
+var WebSocket = require('ws')
+var express = require('express')
+var probe = require('pull-probe')
 
 var args = parse(process.argv.slice(2))
 
@@ -60,6 +61,7 @@ bundle(args.module, function (err, bundlePath) {
     process.exit(1)
   }
 
+  var statusSocket = null
   var processor = null
   if (args.local) {
     processor = pull.asyncMap(require(args.module)['/pando/1.0.0'])
@@ -116,6 +118,13 @@ bundle(args.module, function (err, bundlePath) {
         bundle: require(bundlePath)['/pando/1.0.0']
       })
 
+      processor.on('status', function (summary) {
+        if (statusSocket) {
+          log('sending status to monitoring page')
+          statusSocket.send(JSON.stringify(summary))
+        }
+      })
+
       function close () {
         log('closing')
         if (server) server.close()
@@ -128,7 +137,9 @@ bundle(args.module, function (err, bundlePath) {
       pull(
         args.items,
         pull.through(log),
+        probe('root-input'),
         processor,
+        probe('root-result'),
         pull.through(log),
         pull.through(function (x) { process.stdout.write(String(x) + '\n') }),
         pull.drain(null,
@@ -142,6 +153,24 @@ bundle(args.module, function (err, bundlePath) {
             process.exit(0)
           })
       )
+    })
+
+    log('Starting monitoring server')
+    var app = express()
+    app.use(express.static(path.join(__dirname, '../root')))
+    var monitoringPort = args.port + 1
+    var wss = WebSocket.Server({ server: http.createServer(app).listen(monitoringPort) })
+    wss.on('connection', function (socket) {
+      statusSocket = socket
+      socket.onerror = function () {
+        statusSocket = null
+      }
+      socket.onclose = function () {
+        statusSocket = null
+      }
+    })
+    getIPAddresses().forEach(function (addr) {
+      console.error('Serving monitoring page at http://' + addr + ':' + monitoringPort)
     })
   }
 })

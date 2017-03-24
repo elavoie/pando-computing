@@ -19,9 +19,6 @@ module.exports['webrtc'] = function (host, bundle, config) {
     startProcessing: true,
     bundle: bundle['/pando/1.0.0']
   })
-  processor.on('status', function (status) {
-    console.log('status: ' + JSON.stringify(status))
-  })
   return processor
 }
 
