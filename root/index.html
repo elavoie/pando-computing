@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <style>
+      body {
+        font-family: "Helvetica Neue", helvetica, arial;
+        padding: 15px;
+      }
+
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      ul li {
+        line-height: 1.4;
+      }
+    </style>
+  </head>
+<body>
+  <script src='./simplewebsocket.min.js'></script>
+  <h1>status</h1>
+  <p><a id='status'></a></p>
+  <script>
+    var host = location.origin.replace(/^http:\/\//, '')
+    var socket = SimpleWebsocket('ws://' + host)
+    socket.on('data', function (data) {
+      document.querySelector('#status').textContent = data
+    })
+  </script>
+</body>
+</html>
