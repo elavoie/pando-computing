@@ -44,6 +44,7 @@ var options = {
     local: config['local'] || false,
     module: null,
     items: pull.values([]),
+    'reporting-interval': 3, // seconds
     secret: config['secret'] || 'INSECURE-SECRET',
     seed: config['seed'] || null,
     'start-idle': config['start-idle'] || false

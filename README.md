@@ -86,6 +86,10 @@ to invalidate results produced by malicious volunteers. Use at your own risks.
                     a connection to a node that has reached the maximum degree,
                     the connection is delegated to one of its children.
 
+        --reporting-interval (true, 3)
+                Interval in seconds between the status updates given by nodes.
+
+
         --seed=SEED (true, SEED=RandomInt, Number) 
                     Seed used to assign identifiers to the node channels with
                     which they communicate. Providing an integer makes the identifiers

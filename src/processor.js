@@ -186,12 +186,10 @@ function createProcessor (node, opts) {
 
     for (var s in latestStatus) {
       var n = latestStatus[s].nbLeafNodes
-
-      if (typeof n !== 'number') throw new Error('Invalid number of leaf nodes for ' + s + ' in ' + JSON.stringify(latestStatus[s]))
-
+      var c = latestStatus[s].childrenNb
       summary.nbLeafNodes += n
+      summary.childrenNb += c
       summary.limits[idSummary(s)] = latestStatus[s].limit
-      summary.childrenNb += latestStatus[s].childrenNb
     }
 
     node.emit('status', summary)
@@ -230,7 +228,8 @@ function createProcessor (node, opts) {
       // status update with the exact number. This allows quickly scaling up
       // when many nodes are joining at a fast rate.
       addStatus(child.id, {
-        nbLeafNodes: 1
+        nbLeafNodes: 1,
+        childrenNb: 0
       })
       sendSummary()
     }

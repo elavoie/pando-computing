@@ -115,6 +115,7 @@ bundle(args.module, function (err, bundlePath) {
 
       processor = createProcessor(root, {
         startProcessing: !args['start-idle'],
+        reportingInterval: args['reporting-interval'] * 1000, // ms
         bundle: require(bundlePath)['/pando/1.0.0']
       })
 
