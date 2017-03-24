@@ -88,13 +88,12 @@ function createProcessor (node, opts) {
       )
     })
 
-    function periodicReport () {
-      sendSummary()
-      if (!processingEnded) {
-        periodicReportTimeout = setTimeout(periodicReport, opts.reportingInterval)
-      }
-    }
     periodicReport()
+  }
+
+  function periodicReport () {
+    sendSummary()
+    periodicReportTimeout = setTimeout(periodicReport, opts.reportingInterval)
   }
 
   if (!node) {
@@ -171,27 +170,11 @@ function createProcessor (node, opts) {
   })
 
   var latestStatus = {}
-  var statusNb = 0
   var childrenNb = 0
 
   function addStatus (id, status) {
-    if (!latestStatus[id]) {
-      statusNb++
-    }
-
     latestStatus[id] = status
 
-    // When all our children have given us a status,
-    // send a summary to our parent
-    if (statusNb >= childrenNb) {
-      sendSummary()
-      resetStatus()
-    }
-  }
-
-  function resetStatus () {
-    statusNb = 0
-    latestStatus = {}
   }
 
   function sendSummary () {
@@ -222,7 +205,6 @@ function createProcessor (node, opts) {
     childrenNb--
     if (latestStatus[child.id]) {
       delete latestStatus[child.id]
-      statusNb--
     }
 
     // Restart processing when we are not
@@ -270,9 +252,7 @@ function createProcessor (node, opts) {
         // maxDegree children join. If maxDegree children join under them, we
         // will receive a status update with the new number of leaf nodes and
         // the limit will be updated accordingly.
-        //
-        // TODO: limitedChannel.updateLimit(node.maxDegree * status.nbLeafNodes)
-        status.limit = (status.childrenNb + 1) * node.maxDegree
+        status.limit = (status.nbLeafNodes) * node.maxDegree
         log('updating child(' + idSummary(child.id) + ') limit to ' + status.limit)
         limitedChannel.updateLimit(status.limit)
       }
@@ -349,6 +329,7 @@ function createProcessor (node, opts) {
     source(abort, cb)
   }
 
+  periodicReport()
   return node
 }
 

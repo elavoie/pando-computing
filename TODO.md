@@ -3,6 +3,7 @@
   [x] Commit changes
   [x] Repackage electron-tabs as 'pando-volunteer' executable to easily start multiple volunteers
   [ ] Disconnect the nodes when no status has been provided for more than 5 * status-refresh-interval
+  [ ] Automatic restart of processing when stream is not ended and there are no children anymore
   [ ] Show the number of leaf nodes as a function of time (elasticity)
   [ ] Add more statistics about the tree topology (depth, total number of nodes, avg task time)
   [ ] Produce graphs of:
