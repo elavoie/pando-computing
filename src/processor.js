@@ -174,7 +174,6 @@ function createProcessor (node, opts) {
 
   function addStatus (id, status) {
     latestStatus[id] = status
-
   }
 
   function sendSummary () {
