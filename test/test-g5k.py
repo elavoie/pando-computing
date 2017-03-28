@@ -43,7 +43,7 @@ if jobid:
         if (len(cores) >= 2):
             print 'Starting workers with cmd: ' + workers_cmd % (args.host)
             workers = execo.TaktukRemote(
-                    workers_cmd % (args['host']),
+                    workers_cmd % (args.host),
                     cores[1:]).start()
             workers.expect('loading window 1/1')
             print 'Workers ready'
