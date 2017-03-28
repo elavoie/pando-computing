@@ -40,15 +40,12 @@ if jobid:
         nodes = execo_g5k.get_oar_job_nodes(jobid, site)
         # Open one connection per core (there are 8 cores per node in grenoble)
         cores = nodes * 1  # 8
-        if (len(cores) >= 2):
-            print 'Starting workers with cmd: ' + workers_cmd % (args.host)
-            workers = execo.TaktukRemote(
-                    workers_cmd % (args.host),
-                    cores).start()
-            workers.expect('loading window 1/1')
-            print 'Workers ready'
-        else:
-            print 'Insufficient number of cores'
+        print 'Starting workers with cmd: ' + workers_cmd % (args.host)
+        workers = execo.TaktukRemote(
+                workers_cmd % (args.host),
+                cores).start()
+        workers.expect('loading window 1/1')
+        print 'Workers ready'
 
     finally:
         execo_g5k.oardel([(jobid, site)])
