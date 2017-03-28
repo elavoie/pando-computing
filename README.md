@@ -80,15 +80,18 @@ to invalidate results produced by malicious volunteers. Use at your own risks.
 
     ADVANCED (used for testing, development, and optimization):
 
+        --bootstrap-timeout=T (true, T=60, Number)
+                Maximum time allowed for a new volunteer to establish a
+                successful connection (in seconds).
+
         --degree=D  (true, D=10, Number)
                     Maximum degree of the root (started by this command) and
                     each other connected volunteer. When new volunteers request
                     a connection to a node that has reached the maximum degree,
                     the connection is delegated to one of its children.
 
-        --reporting-interval (true, 3)
+        --reporting-interval=I (true, I=3, Number)
                 Interval in seconds between the status updates given by nodes.
-
 
         --seed=SEED (true, SEED=RandomInt, Number) 
                     Seed used to assign identifiers to the node channels with

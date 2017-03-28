@@ -90,6 +90,7 @@ bundle(args.module, function (err, bundlePath) {
     fs.writeFileSync(
       path.join(__dirname, '../public/config.js'),
       'window.pando = { config: ' + JSON.stringify({
+        requestTimeoutInMs: args['bootstrap-timeout'] * 1000,
         degree: args.degree,
         reportingInterval: args['reporting-interval'] * 1000
       }) + ' }'
@@ -110,6 +111,7 @@ bundle(args.module, function (err, bundlePath) {
 
       log('creating root node')
       var root = new Node(bootstrap, {
+        requestTimeoutInMs: args['bootstrap-timeout'] * 1000, // ms
         peerOpts: { wrtc: wrtc },
         maxDegree: args.degree
       }).becomeRoot(args.secret)

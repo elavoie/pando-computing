@@ -34,6 +34,7 @@ var options = {
   },
   boolean: ['local', 'public', 'headless', 'stdin', 'help', 'start-idle'],
   default: {
+    'bootstrap-timeout': config['bootstrap-timeout'] || 60, // seconds
     degree: config['degree'] || 10,
     port: config['port'] || 5000,
     host: config['host'] || null,
