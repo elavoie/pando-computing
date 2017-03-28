@@ -16,6 +16,11 @@ parser.add_argument(
         type=str,
         help='host to connect to',
         default='localhost:5000')
+parser.add_argument(
+        'nb_tabs',
+        type=int,
+        help='number of browser tabs to open on each core',
+        default=1)
 
 args = parser.parse_args()
 
@@ -28,8 +33,19 @@ print 'Submitting job request for %i nodes (%i cores)' % (nb_nodes, nb_nodes*8)
         "grenoble")
 ])
 
-workers_cmd = '. pando-computing/test/setup-grid5k.sh ' + \
-              ' && electron pando-computing/test/volunteer-tabs 1 %s'
+# workers_cmd = '. pando-computing/test/setup-grid5k.sh ' + \
+#              ' && electron pando-computing/test/volunteer-tabs %s %s' % \
+#              (args.nb_tabs, args.host) 
+setup_cmd = ". ~/pando-computing/test/setup-grid5k.sh"
+
+# workers_cmd = 'electron pando-computing/test/volunteer-tabs %s %s' % \
+#               (args.nb_tabs, args.host) 
+workers_cmd = "Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &" + \
+              "export DISPLAY=':99.0'; " + \
+              'electron pando-computing/test/volunteer-tabs %s %s' % \
+               (args.nb_tabs, args.host) 
+
+
 params = execo_g5k.default_oarsh_oarcp_params
 
 if jobid:
@@ -38,14 +54,20 @@ if jobid:
         execo_g5k.wait_oar_job_start(jobid, site)
         print 'Retrieving nodes'
         nodes = execo_g5k.get_oar_job_nodes(jobid, site)
+        # Setup nodes
+        print 'Preparing workers with cmd: ' + setup_cmd
+        workers = execo.Remote(
+                setup_cmd,
+                nodes).start()
+        workers.expect('Worker Setup Completed')
         # Open one connection per core (there are 8 cores per node in grenoble)
         cores = nodes * 8
-        print 'Starting workers with cmd: ' + workers_cmd % (args.host)
-        workers = execo.TaktukRemote(
-                workers_cmd % (args.host),
+        print cores
+        print 'Starting %d workers with cmd: %s'%(len(cores),workers_cmd)
+        workers = execo.Remote(
+                workers_cmd,
                 cores).start()
-        # workers.expect('.*loading window.*')
-        execo.sleep(90)
+        execo.sleep(600)
         print 'Workers done'
 
     finally:
