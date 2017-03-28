@@ -17,6 +17,10 @@ function idSummary (id) {
 function createProcessor (node, opts) {
   var log = debug('pando:processor(' + processorNb++ + ')')
 
+  function close () {
+    node.close()
+  }
+
   function handlePandoMessages (channel) {
     function parse (data) {
       var message = JSON.parse(data)
@@ -87,8 +91,6 @@ function createProcessor (node, opts) {
         stream
       )
     })
-
-    periodicReport()
   }
 
   function periodicReport () {
@@ -141,6 +143,14 @@ function createProcessor (node, opts) {
     controlChannel.on('status', function (status) {
       log('Unexpected status message from parent')
     })
+    controlChannel.on('close', function () {
+      log('parent control channel closed')
+      close()
+    })
+    controlChannel.on('error', function (err) {
+      log('parent control channel failed with error: ' + err)
+      close()
+    })
 
     sendSummary()
 
@@ -162,6 +172,14 @@ function createProcessor (node, opts) {
         log('connected to parent data channel')
         startProcessing()
       })
+     .on('close', function () {
+       log('parent data channel closed')
+       close()
+     })
+     .on('error', function (err) {
+       log('parent data channel failed with error: ' + err)
+       close()
+     })
 
     node.once('close', function () {
       log('destroying parent channel')
@@ -259,10 +277,12 @@ function createProcessor (node, opts) {
     child.on('close', function () {
       removeChild(child)
       log('destroying child(' + idSummary(child.id) + ') data channel')
-      dataChannel.destroy()
+      if (dataChannel) dataChannel.destroy()
     })
     child.on('error', function () {
       removeChild(child)
+      log('destroying child(' + idSummary(child.id) + ') data channel')
+      if (dataChannel) dataChannel.destroy()
     })
 
     var limitedChannel = null
@@ -300,6 +320,14 @@ function createProcessor (node, opts) {
             subStream
           )
         })
+      })
+      .on('close', function () {
+        log('child(' + idSummary(child.id) + ') data channel closed')
+        child.destroy()
+      })
+      .on('error', function (err) {
+        log('child(' + idSummary(child.id) + ') data channel failed with error: ' + err)
+        child.destroy()
       })
     node.once('close', function () {
       dataChannel.destroy()
