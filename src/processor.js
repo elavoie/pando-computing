@@ -228,7 +228,7 @@ function createProcessor (node, opts) {
 
     // Restart processing when we are not
     // coordinating children
-    if (childrenNb === 0) {
+    if (childrenNb === 0 && opts.startProcessing) {
       processingEnded = false
       startProcessing()
     }

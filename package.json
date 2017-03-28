@@ -29,10 +29,11 @@
   "dependencies": {
     "browserify": "^13.3.0",
     "debug": "^2.6.0",
+    "electron": "^1.6.4",
     "electron-webrtc": "^0.3.0",
     "express": "^4.4.5",
     "minimist": "^1.2.0",
-    "pando-server": "^1.1.0",
+    "pando-server": "^1.1.2",
     "pull-lend-stream": "^1.0.0",
     "pull-limit": "^1.2.1",
     "pull-stream": "^3.5.0",
@@ -46,7 +47,7 @@
     "split": "^1.0.0",
     "stream-to-pull-stream": "^1.7.2",
     "webrtc-bootstrap": "^3.0.1",
-    "webrtc-tree-overlay": "^1.0.4",
+    "webrtc-tree-overlay": "^1.0.5",
     "ws": "^1.1.1"
   },
   "devDependencies": {
