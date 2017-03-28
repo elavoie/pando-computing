@@ -61,6 +61,7 @@
     processor.on('status', function (summary) {
       document.querySelector('#status').textContent = JSON.stringify(summary, null, '    ');
     })
+    window.processor = processor
   </script>
 </body>
 </html>

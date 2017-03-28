@@ -94,6 +94,7 @@ function createProcessor (node, opts) {
   }
 
   function periodicReport () {
+    log('periodicReport every ' + opts.reportingInterval + ' ms')
     sendSummary()
     periodicReportTimeout = setTimeout(periodicReport, opts.reportingInterval)
   }
@@ -131,12 +132,14 @@ function createProcessor (node, opts) {
   var periodicReportTimeout = null
   var processingEnded = false
   var processingStarted = false
+  var parent = null
 
   var lender = lendStream()
 
   node.on('parent-connect', function (controlChannel) {
     log('connected to parent')
     handlePandoMessages(controlChannel)
+    parent = controlChannel
     controlChannel.on('data-channel-signal', function (signal) {
       dataChannel.signal(signal)
     })
@@ -210,9 +213,10 @@ function createProcessor (node, opts) {
       summary.limits[idSummary(s)] = latestStatus[s].limit
     }
 
+    log('sendSummary: ' + JSON.stringify(summary))
     node.emit('status', summary)
-    if (node.parent) {
-      sendStatus(node.parent, summary)
+    if (parent) {
+      sendStatus(parent, summary)
     }
   }
 
@@ -225,7 +229,8 @@ function createProcessor (node, opts) {
     // Restart processing when we are not
     // coordinating children
     if (childrenNb === 0) {
-      // processingEnded = false
+      processingEnded = false
+      startProcessing()
     }
 
     child.destroy()
@@ -275,13 +280,15 @@ function createProcessor (node, opts) {
       addStatus(child.id, status)
     })
     child.on('close', function () {
+      log('child(' + idSummary(child.id) + ') control channel closed')
+      if (limitedChannel) limitedChannel.source(true, function () {})
       removeChild(child)
-      log('destroying child(' + idSummary(child.id) + ') data channel')
       if (dataChannel) dataChannel.destroy()
     })
-    child.on('error', function () {
+    child.on('error', function (err) {
+      log('child(' + idSummary(child.id) + ') control channel failed with error: ' + err)
+      if (limitedChannel) limitedChannel.source(true, function () {})
       removeChild(child)
-      log('destroying child(' + idSummary(child.id) + ') data channel')
       if (dataChannel) dataChannel.destroy()
     })
 
@@ -323,10 +330,12 @@ function createProcessor (node, opts) {
       })
       .on('close', function () {
         log('child(' + idSummary(child.id) + ') data channel closed')
+        if (limitedChannel) limitedChannel.source(true, function () {})
         child.destroy()
       })
       .on('error', function (err) {
         log('child(' + idSummary(child.id) + ') data channel failed with error: ' + err)
+        if (limitedChannel) limitedChannel.source(err, function () {})
         child.destroy()
       })
     node.once('close', function () {

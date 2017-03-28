@@ -17,6 +17,7 @@ module.exports['webrtc'] = function (host, bundle, config) {
   console.log('creating processor')
   var processor = createProcessor(node, {
     startProcessing: true,
+    reportingInterval: config['reportingInterval'],
     bundle: bundle['/pando/1.0.0']
   })
   return processor

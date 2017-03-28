@@ -90,7 +90,8 @@ bundle(args.module, function (err, bundlePath) {
     fs.writeFileSync(
       path.join(__dirname, '../public/config.js'),
       'window.pando = { config: ' + JSON.stringify({
-        degree: args.degree
+        degree: args.degree,
+        reportingInterval: args['reporting-interval'] * 1000
       }) + ' }'
     )
 
