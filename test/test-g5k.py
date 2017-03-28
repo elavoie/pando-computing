@@ -19,7 +19,7 @@ parser.add_argument(
 
 args = parser.parse_args()
 
-nb_nodes = (args.volunteers + 1)
+nb_nodes = (args.volunteers)
 print 'Submitting job request for %i nodes (%i cores)' % (nb_nodes, nb_nodes*8)
 [(jobid, site)] = execo_g5k.oarsub([
     (execo_g5k.OarSubmission(
@@ -39,7 +39,7 @@ if jobid:
         print 'Retrieving nodes'
         nodes = execo_g5k.get_oar_job_nodes(jobid, site)
         # Open one connection per core (there are 8 cores per node in grenoble)
-        cores = nodes * 8
+        cores = nodes * 1  # 8
         if (len(cores) >= 2):
             print 'Starting workers with cmd: ' + workers_cmd % (args.host)
             workers = execo.TaktukRemote(
