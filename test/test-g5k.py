@@ -41,7 +41,7 @@ if jobid:
         # Open one connection per core (there are 8 cores per node in grenoble)
         cores = nodes * 8
         if (len(cores) >= 2):
-            print 'Starting workers with cmd: ' + workers_cmd % (args['host'])
+            print 'Starting workers with cmd: ' + workers_cmd % (args.host)
             workers = execo.TaktukRemote(
                     workers_cmd % (args['host']),
                     cores[1:]).start()
