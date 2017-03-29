@@ -238,6 +238,7 @@ function createProcessor (node, opts) {
 
   function sendSummary () {
     var summary = {
+      id: node.id,
       processing: (processingStarted && !processingEnded),
       childrenNb: childrenNb,
       nbLeafNodes: (processingEnded) ? 0 : 1,
@@ -249,7 +250,7 @@ function createProcessor (node, opts) {
       var c = latestStatus[s].childrenNb
       summary.nbLeafNodes += n
       summary.childrenNb += c
-      summary.limits[idSummary(s)] = latestStatus[s].limit
+      summary.limits[latestStatus[s].id] = latestStatus[s].limit
     }
 
     log('sendSummary: ' + JSON.stringify(summary))
