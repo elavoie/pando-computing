@@ -16,9 +16,24 @@ function idSummary (id) {
 
 function createProcessor (node, opts) {
   var log = debug('pando:processor(' + processorNb++ + ')')
+  var closed = false
 
-  function close () {
+  function close (err) {
+    if (closed) return
+    closed = true
+
+    if (err) log('closing with error: ' + err)
+    else log('closing')
+
     node.close()
+
+    log('clearing report timeout')
+    if (periodicReportTimeout) clearTimeout(periodicReportTimeout)
+
+    log('closing all children')
+    for (var id in children) {
+      children[id].close()
+    }
   }
 
   function handlePandoMessages (channel) {
@@ -68,10 +83,12 @@ function createProcessor (node, opts) {
     log('starting processing')
     processingStarted = true
     lender.lendStream(function (err, stream) {
-      if (err) {
-        log('error opening subStream')
-        log(err)
-        throw err
+      if (err === true) {
+        log('lendStream(true), stream already ended')
+        return
+      } else if (err) {
+        log('lendStream(' + err + '), aborting')
+        return
       }
       log('processing started')
 
@@ -97,6 +114,25 @@ function createProcessor (node, opts) {
     log('periodicReport every ' + opts.reportingInterval + ' ms')
     sendSummary()
     periodicReportTimeout = setTimeout(periodicReport, opts.reportingInterval)
+  }
+
+  function addChild (child) {
+    childrenNb++
+    if (childrenNb >= node.maxDegree) {
+      // For all new connections that are not from an intermediate node
+      // rejoining after a disconnection from its parent, the new child will
+      // have no children.  Report a single leaf node to our parent
+      // optimistically.  If the child has more, it will eventually give us a
+      // status update with the exact number. This allows quickly scaling up
+      // when many nodes are joining at a fast rate.
+      addStatus(child.id, {
+        nbLeafNodes: 1,
+        childrenNb: 0
+      })
+      sendSummary()
+    }
+
+    children[child.id] = child
   }
 
   if (!node) {
@@ -163,6 +199,8 @@ function createProcessor (node, opts) {
       sendDataChannelSignal(controlChannel, data)
     })
       .on('connect', function () {
+        node.emit('ready')
+
         var pullDataChannel = toPull.duplex(dataChannel)
         var s = pullDataChannel
 
@@ -192,6 +230,7 @@ function createProcessor (node, opts) {
 
   var latestStatus = {}
   var childrenNb = 0
+  var children = {}
 
   function addStatus (id, status) {
     latestStatus[id] = status
@@ -226,6 +265,8 @@ function createProcessor (node, opts) {
       delete latestStatus[child.id]
     }
 
+    delete children[child.id]
+
     // Restart processing when we are not
     // coordinating children
     if (childrenNb === 0 && opts.startProcessing) {
@@ -236,28 +277,9 @@ function createProcessor (node, opts) {
     child.destroy()
   }
 
-  function shutdown () {
-    log('clearing report timeout')
-    if (periodicReportTimeout) clearTimeout(periodicReportTimeout)
-  }
-
   node.on('child-connect', function (child) {
-    childrenNb++
-    if (childrenNb >= node.maxDegree) {
-      // For all new connections that are not from an intermediate node
-      // rejoining after a disconnection from its parent, the new child will
-      // have no children.  Report a single leaf node to our parent
-      // optimistically.  If the child has more, it will eventually give us a
-      // status update with the exact number. This allows quickly scaling up
-      // when many nodes are joining at a fast rate.
-      addStatus(child.id, {
-        nbLeafNodes: 1,
-        childrenNb: 0
-      })
-      sendSummary()
-    }
-
     log('connected to child(' + idSummary(child.id) + ')')
+    addChild(child)
     handlePandoMessages(child)
     child.on('data-channel-signal', function (signal) {
       if (dataChannel) {
@@ -347,8 +369,8 @@ function createProcessor (node, opts) {
     log('status summary: ' + JSON.stringify(summary))
   })
 
-  node.on('close', shutdown)
-  node.on('error', shutdown)
+  node.on('close', close)
+  node.on('error', close)
 
   var processor = toObject(pull(
     pull.map(function (x) { return JSON.stringify(x) }),

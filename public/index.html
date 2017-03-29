@@ -50,18 +50,69 @@
   <script src='config.js'></script>
   <script>
     var host = location.origin.replace(/^http:\/\//, '')
-    var processor = null
-    if (location.hash === '#ws') {
-      //volunteer['ws'](host, bundle)
-    } else if (location.hash === '#webrtc') {
-      processor = volunteer['webrtc'](host, bundle, window.pando.config)
-    } else {
-      processor = volunteer['webrtc'](host, bundle, window.pando.config)
+
+    var seconds = 3
+    var restarting = false
+    var connectTimeout = null
+
+    function restart () {
+      if (restarting) return
+      console.log('restart()')
+      restarting = true
+      if (processor) processor.close()
+      processor = null
+      countdown(seconds, 'Connecting', start)
     }
-    processor.on('status', function (summary) {
-      document.querySelector('#status').textContent = JSON.stringify(summary, null, '    ');
-    })
-    window.processor = processor
+
+    function countdown (seconds, actionText, cb) {
+      if (seconds <= 0) {
+        document.querySelector('#status').textContent = actionText;
+        cb()
+      } else {
+        document.querySelector('#status').textContent = actionText + ' in ' + seconds + ' seconds'
+        setTimeout(function () { countdown(seconds-1, actionText, cb) }, 1000)
+      }
+    }
+
+    function start () {
+      console.log('start()')
+      var processor = null
+      setTimeout(function () {
+        if (location.hash === '#ws') {
+          //volunteer['ws'](host, bundle)
+        } else if (location.hash === '#webrtc') {
+          processor = volunteer['webrtc'](host, bundle, window.pando.config)
+        } else {
+          processor = volunteer['webrtc'](host, bundle, window.pando.config)
+        }
+        processor.on('status', function (summary) {
+          document.querySelector('#status').textContent = JSON.stringify(summary, null, '    ')
+        })
+        processor.on('close', function () {
+          restart()
+        })
+        processor.on('error', function () {
+          restart()
+        })
+        processor.on('ready', function () {
+          console.log('cleared restart timeout')
+          clearTimeout(connectTimeout)
+          restarting = false
+        })
+
+        // If connection does not succeed, keep retrying until it does
+        console.log('setting restart timeout')
+        connectTimeout = setTimeout(function () {
+            console.log('connection timeout')
+            restarting = false
+            restart()
+        }, 10 * 1000)
+
+        window.processor = processor
+      }, Math.floor(Math.random() * 1000)) // Random delay of up to 1s to avoid all nodes connecting at the same time
+    }
+
+    countdown(3, 'Connecting', start)
   </script>
 </body>
 </html>

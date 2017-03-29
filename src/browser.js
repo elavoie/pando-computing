@@ -7,7 +7,12 @@ module.exports['webrtc'] = function (host, bundle, config) {
     console.log('Missing configuration')
   }
 
-  var bootstrap = new BootstrapClient(host)
+  var bootstrap = new BootstrapClient(host, {
+    cb: function (err) {
+      if (err) console.log(err)
+      close()
+    }
+  })
   var nodeOpts = {
     requestTimeoutInMs: config.requestTimeoutInMs,
     maxDegree: config.degree
@@ -21,6 +26,17 @@ module.exports['webrtc'] = function (host, bundle, config) {
     reportingInterval: config.reportingInterval,
     bundle: bundle['/pando/1.0.0']
   })
+
+  var closed = false
+  function close () {
+    if (closed) return
+    closed = true
+
+    bootstrap.close()
+    node.close()
+  }
+  processor.on('close', close)
+  processor.on('error', close)
   return processor
 }
 

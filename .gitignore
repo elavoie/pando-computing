@@ -6,5 +6,5 @@ node_modules/
 public/bundle.js
 public/volunteer.js
 public/config.js
-local-server/**
-public-server/**
+local-server/**/*
+public-server/**/*

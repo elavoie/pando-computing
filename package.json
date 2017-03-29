@@ -46,7 +46,7 @@
     "simple-websocket": "^4.1.0",
     "split": "^1.0.0",
     "stream-to-pull-stream": "^1.7.2",
-    "webrtc-bootstrap": "^3.0.1",
+    "webrtc-bootstrap": "^3.0.3",
     "webrtc-tree-overlay": "^1.0.6",
     "ws": "^1.1.1"
   },
