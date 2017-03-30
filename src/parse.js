@@ -36,19 +36,19 @@ var options = {
   default: {
     'bootstrap-timeout': config['bootstrap-timeout'] || 60, // seconds
     degree: config['degree'] || 10,
-    port: config['port'] || 5000,
     host: config['host'] || null,
     headless: config['headless'] || false,
-    limit: 1,
-    stdin: config['stdin'] || false,
     help: false,
+    items: pull.values([]),
+    limit: 1,
     local: config['local'] || false,
     module: null,
-    items: pull.values([]),
+    port: config['port'] || 5000,
     'reporting-interval': 3, // seconds
     secret: config['secret'] || 'INSECURE-SECRET',
     seed: config['seed'] || null,
-    'start-idle': config['start-idle'] || false
+    'start-idle': config['start-idle'] || false,
+    stdin: config['stdin'] || false
   }
 }
 
