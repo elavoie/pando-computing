@@ -348,9 +348,9 @@ function createProcessor (node, opts) {
           log('child(' + idSummary(child.id) + ') subStream opened')
           pull(
             subStream,
-            probe('lending-input'),
+            probe('pando:child:input'),
             limitedChannel,
-            probe('lending-result'),
+            probe('pando:child:result'),
             subStream
           )
         })
