@@ -22,7 +22,7 @@
   <h1>root status</h1>
   <p><a id='root-status'></a></p>
   <h1>global status</h1>
-  <p><a id='global-status'></a></p>
+  <div id='global-status'></div>
   <script>
     var host = location.origin.replace(/^http:\/\//, '')
     var socket = SimpleWebsocket('ws://' + host + '/root-status')
@@ -34,7 +34,15 @@
     monitoringHost = monitoringHost.join(':')
     var socket = SimpleWebsocket('ws://' + monitoringHost + '/monitoring/monitor')
     socket.on('data', function (data) {
-      document.querySelector('#global-status').textContent = data
+      var summary = JSON.parse(data)
+      var code = ''
+      code += '<p>Number of volunteers monitored: ' + summary.connectionNb + '<\/p>'
+
+      for (var id in summary.statuses) {
+        code += '<p>Reporter(' + id + '): ' + JSON.stringify(summary.statuses[id]) + '<\/p>'
+      }
+
+      document.querySelector('#global-status').innerHTML = code
     })
   </script>
 </body>
