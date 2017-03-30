@@ -61,7 +61,7 @@ if jobid:
                 nodes).start()
         workers.expect('Worker Setup Completed')
         # Open one connection per core (there are 8 cores per node in grenoble)
-        cores = nodes * 8
+        cores = nodes * 1
         print cores
         print 'Starting %d workers with cmd: %s'%(len(cores),workers_cmd)
         workers = execo.Remote(
