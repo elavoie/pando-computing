@@ -169,6 +169,7 @@ function createProcessor (node, opts) {
   var processingEnded = false
   var processingStarted = false
   var parent = null
+  var unprocessedInputs = 0
 
   var lender = lendStream()
 
@@ -206,7 +207,9 @@ function createProcessor (node, opts) {
 
         pull(
           s,
+          pull.through(function () { unprocessedInputs++ }),
           lender,
+          pull.through(function () { unprocessedInputs-- }),
           s
         )
 
@@ -239,6 +242,7 @@ function createProcessor (node, opts) {
   function sendSummary () {
     var summary = {
       id: node.id,
+      unprocessedInputs: unprocessedInputs,
       processing: (processingStarted && !processingEnded),
       childrenNb: childrenNb,
       nbLeafNodes: (processingEnded) ? 0 : 1,
@@ -375,7 +379,9 @@ function createProcessor (node, opts) {
 
   var processor = toObject(pull(
     pull.map(function (x) { return JSON.stringify(x) }),
+    pull.through(function () { unprocessedInputs++ }),
     lender,
+    pull.through(function () { unprocessedInputs-- }),
     pull.map(function (x) { return JSON.parse(x) })
   ))
 

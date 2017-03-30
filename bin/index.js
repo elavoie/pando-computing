@@ -144,9 +144,9 @@ bundle(args.module, function (err, bundlePath) {
       pull(
         args.items,
         pull.through(log),
-        probe('root-input'),
+        probe('pando:input'),
         processor,
-        probe('root-result'),
+        probe('pando:result'),
         pull.through(log),
         pull.through(function (x) { process.stdout.write(String(x) + '\n') }),
         pull.drain(null,
