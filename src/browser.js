@@ -22,9 +22,10 @@ module.exports['webrtc'] = function (host, bundle, config) {
   var node = new Node(bootstrap, nodeOpts).join()
   console.log('creating processor')
   var processor = createProcessor(node, {
-    startProcessing: true,
+    bundle: bundle['/pando/1.0.0'],
+    globalMonitoring: config.globalMonitoring,
     reportingInterval: config.reportingInterval,
-    bundle: bundle['/pando/1.0.0']
+    startProcessing: true
   })
 
   var closed = false

@@ -19,13 +19,22 @@
   </head>
 <body>
   <script src='./simplewebsocket.min.js'></script>
-  <h1>status</h1>
-  <p><a id='status'></a></p>
+  <h1>root status</h1>
+  <p><a id='root-status'></a></p>
+  <h1>global status</h1>
+  <p><a id='global-status'></a></p>
   <script>
     var host = location.origin.replace(/^http:\/\//, '')
-    var socket = SimpleWebsocket('ws://' + host)
+    var socket = SimpleWebsocket('ws://' + host + '/root-status')
     socket.on('data', function (data) {
-      document.querySelector('#status').textContent = data
+      document.querySelector('#root-status').textContent = data
+    })
+    var monitoringHost = host.split(':')
+    monitoringHost[1] = String(Number.parseInt(monitoringHost[1]) - 1)
+    monitoringHost = monitoringHost.join(':')
+    var socket = SimpleWebsocket('ws://' + monitoringHost + '/monitoring/monitor')
+    socket.on('data', function (data) {
+      document.querySelector('#global-status').textContent = data
     })
   </script>
 </body>

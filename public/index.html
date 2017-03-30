@@ -26,25 +26,11 @@
     </script>
   </head>
 <body>
-  <!--
-  <p>If the connection is not automatically established after a few seconds,
-  alternatively try with <a id='ws-link' href='#ws'>WebSocket</a>. You can also retry with <a id='webrtc-link' href='#webrtc'>WebRTC</a>.
-  </p>
-  -->
-  <script>
-    var wsLink = document.getElementById('ws-link')
-    wsLink.onclick = function () {
-      window.location.reload()
-    }
-    var webrtcLink = document.getElementById('webrtc-link')
-    webrtcLink.onclick = function () {
-      window.location.reload()
-    }
-  </script>
   <h1>status</h1>
   <p><a id='status'></a></p>
   <h1>console.log</h1>
   <ul id='console'></ul>
+  <script src='simplewebsocket.min.js'></script>
   <script src='volunteer.js'></script>
   <script src='bundle.js'></script>
   <script src='config.js'></script>
@@ -54,6 +40,7 @@
     var seconds = 3
     var restarting = false
     var connectTimeout = null
+    var reporter = null
 
     function restart () {
       if (restarting) return
@@ -87,12 +74,24 @@
         }
         processor.on('status', function (summary) {
           document.querySelector('#status').textContent = JSON.stringify(summary, null, '    ')
+          if (reporter) {
+            console.log('reporting status')
+            reporter.send(JSON.stringify(summary))
+          }
         })
         processor.on('close', function () {
           restart()
+          if (reporter) {
+            console.log('reporting processor closed')
+            reporter.send(JSON.stringify({ type: 'STATUS', closed: true }))
+          }
         })
-        processor.on('error', function () {
+        processor.on('error', function (err) {
           restart()
+          if (reporter) {
+            console.log('reporting processor error')
+            reporter.send(JSON.stringify({ type: 'STATUS', error: err }))
+          }
         })
         processor.on('ready', function () {
           console.log('cleared restart timeout')
@@ -104,6 +103,10 @@
         console.log('setting restart timeout')
         connectTimeout = setTimeout(function () {
             console.log('connection timeout')
+            if (reporter) {
+              console.log('reporting connection timeout')
+              reporter.send(JSON.stringify({ type: 'STATUS', error: 'Connection timeout, restarting' }))
+            }
             restarting = false
             restart()
         }, 10 * 1000)
@@ -113,6 +116,14 @@
     }
 
     countdown(3, 'Connecting', start)
+
+    if (window.pando.config.globalMonitoring) {
+      var socket = SimpleWebsocket('ws://' + host + '/monitoring/processor')
+      socket.on('connect', function () {
+        console.log('reporter connected')
+        reporter = socket  
+      })
+    } 
   </script>
 </body>
 </html>

@@ -32,22 +32,31 @@ var options = {
   alias: {
     'help': ['h']
   },
-  boolean: ['local', 'public', 'headless', 'stdin', 'help', 'start-idle'],
+  boolean: [
+    'global-monitoring',
+    'headless',
+    'help',
+    'local',
+    'public',
+    'start-idle',
+    'stdin'
+  ],
   default: {
     'bootstrap-timeout': config['bootstrap-timeout'] || 60, // seconds
+    'global-monitoring': config['global-monitoring'] || false,
+    'reporting-interval': 3, // seconds
+    'start-idle': config['start-idle'] || false,
     degree: config['degree'] || 10,
-    host: config['host'] || null,
     headless: config['headless'] || false,
     help: false,
+    host: config['host'] || null,
     items: pull.values([]),
     limit: 1,
     local: config['local'] || false,
     module: null,
     port: config['port'] || 5000,
-    'reporting-interval': 3, // seconds
     secret: config['secret'] || 'INSECURE-SECRET',
     seed: config['seed'] || null,
-    'start-idle': config['start-idle'] || false,
     stdin: config['stdin'] || false
   }
 }
@@ -70,7 +79,7 @@ module.exports = function (argv) {
     process.exit(1)
   }
   if (typeof f['/pando/1.0.0'] !== 'function' ||
-      f['/pando/1.0.0'].length !== 2) {
+    f['/pando/1.0.0'].length !== 2) {
     console.log("Incompatible module, property '/pando/1.0.0' is not a function or does not expect two arguments")
     process.exit(1)
   }

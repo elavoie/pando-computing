@@ -90,9 +90,10 @@ bundle(args.module, function (err, bundlePath) {
     fs.writeFileSync(
       path.join(__dirname, '../public/config.js'),
       'window.pando = { config: ' + JSON.stringify({
-        requestTimeoutInMs: args['bootstrap-timeout'] * 1000,
         degree: args.degree,
-        reportingInterval: args['reporting-interval'] * 1000
+        globalMonitoring: args['global-monitoring'],
+        reportingInterval: args['reporting-interval'] * 1000,
+        requestTimeoutInMs: args['bootstrap-timeout'] * 1000
       }) + ' }'
     )
 
@@ -101,7 +102,8 @@ bundle(args.module, function (err, bundlePath) {
       bundlePath,
       path.join(__dirname, '../public/config.js'),
       path.join(__dirname, '../public/index.html'),
-      path.join(__dirname, '../public/volunteer.js')
+      path.join(__dirname, '../public/volunteer.js'),
+      path.join(__dirname, '../public/simplewebsocket.min.js')
     ], host, args.secret, function (err) {
       if (err) throw err
       log('files uploaded successfully')
@@ -117,9 +119,10 @@ bundle(args.module, function (err, bundlePath) {
       }).becomeRoot(args.secret)
 
       processor = createProcessor(root, {
-        startProcessing: !args['start-idle'],
+        bundle: require(bundlePath)['/pando/1.0.0'],
+        globalMonitoring: args['global-monitoring'],
         reportingInterval: args['reporting-interval'] * 1000, // ms
-        bundle: require(bundlePath)['/pando/1.0.0']
+        startProcessing: !args['start-idle']
       })
 
       processor.on('status', function (summary) {
@@ -164,7 +167,7 @@ bundle(args.module, function (err, bundlePath) {
     app.use(express.static(path.join(__dirname, '../root')))
     var monitoringPort = args.port + 1
     var wss = WebSocket.Server({ server: http.createServer(app).listen(monitoringPort) })
-    wss.on('connection', function (socket) {
+    wss.on('connection/root-status', function (socket) {
       statusSocket = socket
       socket.onerror = function () {
         statusSocket = null
