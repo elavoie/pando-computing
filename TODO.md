@@ -1,21 +1,15 @@
-[ ] Prepare Demo for Tuesday
-  [x] Make the pando executable use the new topology
-  [x] Commit changes
-  [x] Repackage electron-tabs as 'pando-volunteer' executable to easily start multiple volunteers
-  [ ] Disconnect the nodes when no status has been provided for more than 5 * status-refresh-interval
-  [ ] Automatic restart of processing when stream is not ended and there are no children anymore
-  [ ] Show the number of leaf nodes as a function of time (elasticity)
-  [ ] Add more statistics about the tree topology (depth, total number of nodes, avg task time)
-  [ ] Produce graphs of:
-     [ ] Maximum number of connected nodes
-     [ ] Connected number of nodes over time
-     [ ] Normalized task completion rate (Task nb / Avg task time)
-     [ ] Max throughput with various rate-adjustment strategies
-     [ ] Recovery time during failure
-     [ ] Max throughput after failure as a function of failure rate 
-[ ] Add fault-tolerance for connected children that become unresponsive (close connection after 3avg_task_time)
+[ ] Find why sometimes electron fails to start on grid5000
+[ ] Fix bug in which the number of unprocessed inputs keeps growing indefinitely
+[ ] Produce graphs of:
+ [ ] Maximum number of connected nodes
+ [ ] Connected number of nodes over time
+ [ ] Normalized task completion rate (Task nb / Avg task time)
+ [ ] Max throughput with various rate-adjustment strategies
+ [ ] Recovery time during failure
+ [ ] Max throughput after failure as a function of failure rate 
 [ ] Ensure the design is reversible (works while the number of nodes is growing or shrinking) and elastic (quickly adapts to a high number of nodes that joins or leave)
 [ ] Fix bug where the pull-lend-stream does not end in some cases
+[ ] Show the number of leaf nodes as a function of time (elasticity)
 [ ] Fix bug in which the same value is sent multiple times
 [ ] Test scaling with volunteer-tabs
     * Identify bottlenecks (CPU, Memory, Bandwidth)
@@ -48,3 +42,12 @@
     [x] Stop processing once a child connects
 [x] Add monitoring abstractions
 [x] Design adaptative limit based on the rate of results vs rate of values
+[x] Add fault-tolerance for connected children that become unresponsive (close connection after 3avg_task_time)
+[x] Prepare Demo for Tuesday
+  [x] Make the pando executable use the new topology
+  [x] Commit changes
+  [x] Repackage electron-tabs as 'pando-volunteer' executable to easily start multiple volunteers
+  [x] Disconnect the nodes when no status has been provided for more than 5 * status-refresh-interval
+  [x] Automatic restart of processing when stream is not ended and there are no children anymore
+  [x] Add more statistics about the tree topology (depth, total number of nodes, avg task time)
+[x] Fix unbalanced tree bug
