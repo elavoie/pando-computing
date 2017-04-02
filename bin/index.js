@@ -152,6 +152,7 @@ bundle(args.module, function (err, bundlePath) {
         pull.drain(null,
           function (err) {
             if (err) {
+              console.error(err.message)
               console.error(err)
               close()
               process.exit(1)

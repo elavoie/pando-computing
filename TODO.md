@@ -1,5 +1,5 @@
-[ ] Find why sometimes electron fails to start on grid5000
 [ ] Fix bug in which the number of unprocessed inputs keeps growing indefinitely
+[ ] Find why sometimes electron fails to start on grid5000
 [ ] Produce graphs of:
  [ ] Maximum number of connected nodes
  [ ] Connected number of nodes over time

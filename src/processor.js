@@ -216,14 +216,14 @@ function createProcessor (node, opts) {
         log('connected to parent data channel')
         startProcessing()
       })
-     .on('close', function () {
-       log('parent data channel closed')
-       close()
-     })
-     .on('error', function (err) {
-       log('parent data channel failed with error: ' + err)
-       close()
-     })
+      .on('close', function () {
+        log('parent data channel closed')
+        close()
+      })
+      .on('error', function (err) {
+        log('parent data channel failed with error: ' + err)
+        close()
+      })
 
     node.once('close', function () {
       log('destroying parent channel')
@@ -246,7 +246,8 @@ function createProcessor (node, opts) {
       processing: (processingStarted && !processingEnded),
       childrenNb: childrenNb,
       nbLeafNodes: (processingEnded) ? 0 : 1,
-      limits: {}
+      limits: {},
+      childrenUnprocessedInputs: {}
     }
 
     for (var s in latestStatus) {
@@ -255,6 +256,7 @@ function createProcessor (node, opts) {
       summary.nbLeafNodes += n
       summary.childrenNb += c
       summary.limits[latestStatus[s].id] = latestStatus[s].limit
+      summary.childrenUnprocessedInputs[latestStatus[s].id] = latestStatus[s].unprocessedInputs
     }
 
     log('sendSummary: ' + JSON.stringify(summary))
@@ -300,9 +302,13 @@ function createProcessor (node, opts) {
         // maxDegree children join. If maxDegree children join under them, we
         // will receive a status update with the new number of leaf nodes and
         // the limit will be updated accordingly.
-        status.limit = (status.nbLeafNodes) * node.maxDegree
-        log('updating child(' + idSummary(child.id) + ') limit to ' + status.limit)
-        limitedChannel.updateLimit(status.limit)
+        var limit = (status.nbLeafNodes) * node.maxDegree
+
+        if (limit > 0) {
+          status.limit = limit
+          log('updating child(' + idSummary(child.id) + ') limit to ' + status.limit)
+          limitedChannel.updateLimit(status.limit)
+        }
       }
       addStatus(child.id, status)
     })
@@ -338,6 +344,8 @@ function createProcessor (node, opts) {
         var pullDataChannel = toPull.duplex(dataChannel)
         limitedChannel = limit(pullDataChannel, opts.initialChildLimit)
 
+        var unprocessedInputs = 0
+
         lender.lendStream(function (err, subStream) {
           if (err) {
             log('lendStream(' + err + ')')
@@ -349,7 +357,25 @@ function createProcessor (node, opts) {
           pull(
             subStream,
             probe('pando:child:input'),
+            pull.through(function () {
+              unprocessedInputs++
+              if (child.id && latestStatus[child.id]) {
+                if (unprocessedInputs > (2 * latestStatus[child.id].limit)) {
+                  var message = 'Overflowed expected limit of ' +
+                    latestStatus[child.id].limit + ' on child(' + idSummary(child.id) + ')'
+                  throw new Error(message)
+                } else {
+                  latestStatus[child.id].unprocessedInputs = unprocessedInputs
+                }
+              }
+            }),
             limitedChannel,
+            pull.through(function () {
+              unprocessedInputs--
+              if (child.id && latestStatus[child.id]) {
+                latestStatus[child.id].unprocessedInputs = unprocessedInputs
+              }
+            }),
             probe('pando:child:result'),
             subStream
           )
