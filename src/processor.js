@@ -304,13 +304,13 @@ function createProcessor (node, opts) {
     if (stalled()) {
       // Wait proportionally to the delay for reports before
       // disconnecting a child
-      var estimatedDepth = Math.log(childrenNb) / Math.log(node.maxDegree)
+      var estimatedDepth = Math.max(Math.log(childrenNb) / Math.log(node.maxDegree), 1)
       setTimeout(function () {
         // If we are still stalled, disconnect the child
         if (stalled()) {
           child.destroy()
         }
-      }, opts.reportingInterval * estimatedDepth * 2)
+      }, opts.reportingInterval * estimatedDepth * 10)
     }
   }
 

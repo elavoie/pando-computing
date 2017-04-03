@@ -1,4 +1,6 @@
-[ ] Fix bug in which the number of unprocessed inputs keeps growing indefinitely
+[x] Fix bug in which the number of unprocessed inputs keeps growing indefinitely
+[ ] Make stall-check optional
+[ ] Find why sometimes some nodes stall
 [ ] Find why sometimes electron fails to start on grid5000
 [ ] Produce graphs of:
  [ ] Maximum number of connected nodes
