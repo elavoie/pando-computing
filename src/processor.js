@@ -308,6 +308,7 @@ function createProcessor (node, opts) {
           status.limit = limit
           log('updating child(' + idSummary(child.id) + ') limit to ' + status.limit)
           limitedChannel.updateLimit(status.limit)
+          limitedChannel._pando_limit = limit
         }
       }
       addStatus(child.id, status)
@@ -360,9 +361,10 @@ function createProcessor (node, opts) {
             pull.through(function () {
               unprocessedInputs++
               if (child.id && latestStatus[child.id]) {
-                if (unprocessedInputs > (2 * latestStatus[child.id].limit)) {
+                if (limitedChannel._pando_limit &&
+                    unprocessedInputs > (limitedChannel._pando_limit + 10)) {
                   var message = 'Overflowed expected limit of ' +
-                    latestStatus[child.id].limit + ' on child(' + idSummary(child.id) + ')'
+                    limitedChannel._pando_limit + ' on child(' + idSummary(child.id) + ') with ' + unprocessedInputs + ' unprocessed inputs'
                   throw new Error(message)
                 } else {
                   latestStatus[child.id].unprocessedInputs = unprocessedInputs
