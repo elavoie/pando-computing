@@ -307,8 +307,8 @@ function createProcessor (node, opts) {
         if (limit > 0) {
           status.limit = limit
           log('updating child(' + idSummary(child.id) + ') limit to ' + status.limit)
+          limitedChannel._pando_limit = status.limit
           limitedChannel.updateLimit(status.limit)
-          limitedChannel._pando_limit = limit
         }
       }
       addStatus(child.id, status)
