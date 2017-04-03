@@ -246,7 +246,7 @@ function createProcessor (node, opts) {
       processing: (processingStarted && !processingEnded),
       childrenNb: childrenNb,
       nbLeafNodes: (processingEnded) ? 0 : 1,
-      lendSteamState: lender._state(),
+      lendStreamState: lender._state(),
       limits: {},
       childrenUnprocessedInputs: {}
     }
@@ -351,7 +351,7 @@ function createProcessor (node, opts) {
           if (err) {
             log('lendStream(' + err + ')')
             if (!node.parent) { log('parent not connected yet') }
-            throw err
+            return close(err)
           }
 
           log('child(' + idSummary(child.id) + ') subStream opened')
