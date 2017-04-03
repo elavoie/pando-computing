@@ -318,15 +318,18 @@ function createProcessor (node, opts) {
       if (limitedChannel) limitedChannel.source(true, function () {})
       removeChild(child)
       if (dataChannel) dataChannel.destroy()
+      if (stream) stream.close()
     })
     child.on('error', function (err) {
       log('child(' + idSummary(child.id) + ') control channel failed with error: ' + err)
       if (limitedChannel) limitedChannel.source(true, function () {})
       removeChild(child)
       if (dataChannel) dataChannel.destroy()
+      if (stream) stream.close()
     })
 
     var limitedChannel = null
+    var stream = null
     var peerOpts = {}
     for (var p in node.peerOpts) {
       peerOpts[p] = node.peerOpts[p]
@@ -355,6 +358,7 @@ function createProcessor (node, opts) {
           }
 
           log('child(' + idSummary(child.id) + ') subStream opened')
+          stream = subStream
           pull(
             subStream,
             probe('pando:child:input'),
@@ -380,11 +384,13 @@ function createProcessor (node, opts) {
         log('child(' + idSummary(child.id) + ') data channel closed')
         if (limitedChannel) limitedChannel.source(true, function () {})
         child.destroy()
+        if (stream) stream.close()
       })
       .on('error', function (err) {
         log('child(' + idSummary(child.id) + ') data channel failed with error: ' + err)
         if (limitedChannel) limitedChannel.source(err, function () {})
         child.destroy()
+        if (stream) stream.close()
       })
     node.once('close', function () {
       dataChannel.destroy()
