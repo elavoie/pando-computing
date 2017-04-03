@@ -246,6 +246,7 @@ function createProcessor (node, opts) {
       processing: (processingStarted && !processingEnded),
       childrenNb: childrenNb,
       nbLeafNodes: (processingEnded) ? 0 : 1,
+      lendSteamState: lender._state(),
       limits: {},
       childrenUnprocessedInputs: {}
     }
