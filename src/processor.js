@@ -285,6 +285,35 @@ function createProcessor (node, opts) {
     child.destroy()
   }
 
+  function stallCheck (child) {
+    // Check whether other children
+    // are active (have non-zero unprocessedInputs).
+    // If least one is not active, we might be stalling
+    // the pipeline.
+    function stalled () {
+      var inactive = 0
+      for (var id in latestStatus) {
+        if (id !== child.id &&
+          latestStatus[id].unprocessedInputs === 0) {
+          inactive++
+        }
+      }
+      return inactive > 0
+    }
+
+    if (stalled()) {
+      // Wait proportionally to the delay for reports before
+      // disconnecting a child
+      var estimatedDepth = Math.log(childrenNb) / Math.log(node.maxDegree)
+      setTimeout(function () {
+        // If we are still stalled, disconnect the child
+        if (stalled()) {
+          child.destroy()
+        }
+      }, opts.reportingInterval * estimatedDepth * 2)
+    }
+  }
+
   node.on('child-connect', function (child) {
     log('connected to child(' + idSummary(child.id) + ')')
     addChild(child)
@@ -312,6 +341,7 @@ function createProcessor (node, opts) {
         }
       }
       addStatus(child.id, status)
+      stallCheck(child)
     })
     child.on('close', function () {
       log('child(' + idSummary(child.id) + ') control channel closed')
