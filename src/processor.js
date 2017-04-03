@@ -392,15 +392,25 @@ function createProcessor (node, opts) {
 
   node.on('status', function (summary) {
     log('status summary: ' + JSON.stringify(summary))
+    if (limitedLender && summary.nbLeafNodes > 0) {
+      var updatedLimit = summary.nbLeafNodes * node.maxDegree
+      log('updating processor limit to ' + updatedLimit)
+      limitedLender.updateLimit(updatedLimit)
+    }
   })
 
   node.on('close', close)
   node.on('error', close)
 
+  // That should not be necessary but there is a bug
+  // that triggers an infinite number of reads from time
+  // to time
+  var limitedLender = limit(lender, 10)
+
   var processor = toObject(pull(
     pull.map(function (x) { return JSON.stringify(x) }),
     pull.through(function () { unprocessedInputs++ }),
-    lender,
+    limitedLender,
     pull.through(function () { unprocessedInputs-- }),
     pull.map(function (x) { return JSON.parse(x) })
   ))
