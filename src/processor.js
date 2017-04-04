@@ -236,6 +236,7 @@ function createProcessor (node, opts) {
   var children = {}
 
   function addStatus (id, status) {
+    if (typeof id === 'undefined') return
     latestStatus[id] = status
   }
 
@@ -298,7 +299,7 @@ function createProcessor (node, opts) {
           inactive++
         }
       }
-      return inactive > 0
+      return inactive >= (node.maxDegree / 2)
     }
 
     if (stalled()) {
@@ -341,7 +342,7 @@ function createProcessor (node, opts) {
         }
       }
       addStatus(child.id, status)
-      stallCheck(child)
+      // TODO: stallCheck(child)
     })
     child.on('close', function () {
       log('child(' + idSummary(child.id) + ') control channel closed')

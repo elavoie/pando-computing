@@ -1,6 +1,4 @@
-[x] Fix bug in which the number of unprocessed inputs keeps growing indefinitely
-[ ] Make stall-check optional
-[ ] Find why sometimes some nodes stall
+[ ] Make stall-check an advanced option
 [ ] Find why sometimes electron fails to start on grid5000
 [ ] Produce graphs of:
  [ ] Maximum number of connected nodes
@@ -53,3 +51,5 @@
   [x] Automatic restart of processing when stream is not ended and there are no children anymore
   [x] Add more statistics about the tree topology (depth, total number of nodes, avg task time)
 [x] Fix unbalanced tree bug
+[x] Find why sometimes some nodes stall (because pull-lend would sometimes return after pull-lend-stream had closed)
+[x] Fix bug in which the number of unprocessed inputs keeps growing indefinitely
