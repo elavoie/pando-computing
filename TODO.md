@@ -1,4 +1,6 @@
 [ ] Make stall-check an advanced option
+[ ] Find why nodes still stall when using 1500 nodes (15 * 100)
+[ ] Fix webrtc-tree-overlay bug
 [ ] Find why sometimes electron fails to start on grid5000
 [ ] Produce graphs of:
  [ ] Maximum number of connected nodes
