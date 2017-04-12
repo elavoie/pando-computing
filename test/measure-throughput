@@ -1,0 +1,62 @@
+#!/usr/bin/env node
+
+var pull = require('pull-stream')
+var toPull = require('stream-to-pull-stream')
+var split = require('split')
+var path = require('path')
+
+process.stdout.on('error', function (err) {
+  if (err.code === 'EPIPE') {
+    process.exit(1)
+  }
+})
+
+if (process.argv.length <= 2) {
+    console.error('usage: ' + path.basename(process.argv[1]) + ' INTERVAL_IN_MS ')
+    process.exit(1)
+}
+
+var counter = 0
+
+function delay (ms) {
+  return pull.asyncMap(function (x, cb) {
+    setTimeout(function () {
+      cb(null, x)
+    }, ms)
+  })
+}
+
+function sample () {
+  var lastReadTime = Date.now()
+
+  return function (abort, cb) {
+    if (abort) return cb(true)
+
+    var c = counter
+    counter = 0
+    var time = Date.now()
+    var interval = time - lastReadTime
+    lastReadTime = time
+    var rate = (c / interval) * 1000
+    cb(null, JSON.stringify({
+      count: c,
+      datetime: time,
+      ratePerSecond: rate
+    }))
+  }
+}
+
+pull(
+  toPull.source(process.stdin.pipe(split())),
+  pull.through(function (x) {
+    counter++
+  }),
+  pull.drain()
+)
+
+pull(
+  sample(),
+  delay(Number(process.argv[2])),
+  pull.map(function (x) { return x + '\n' }),
+  toPull.sink(process.stdout)
+)
