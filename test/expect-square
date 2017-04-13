@@ -18,7 +18,9 @@ pull(
         var c = count++
         if (c*c === Number.parseInt(x)) 
             return x
-        else {
+        else if (x === '') {
+            process.exit(0)
+        } else {
             process.stderr.write('error got ' +  x + ' instead of ' + c*c + '\n')
             process.exit(1)
         }
