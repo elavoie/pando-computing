@@ -8,3 +8,5 @@ public/volunteer.js
 public/config.js
 local-server/**/*
 public-server/**/*
+test/results/speedup/**/*
+test/results/throughput/**/*
