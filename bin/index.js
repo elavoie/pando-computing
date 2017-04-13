@@ -65,6 +65,24 @@ bundle(args.module, function (err, bundlePath) {
   var processor = null
   if (args.local) {
     processor = pull.asyncMap(require(args.module)['/pando/1.0.0'])
+    pull(
+      args.items,
+      pull.through(log),
+      probe('pando:input'),
+      processor,
+      probe('pando:result'),
+      pull.through(log),
+      pull.through(function (x) { process.stdout.write(String(x) + '\n') }),
+      pull.drain(null,
+        function (err) {
+          if (err) {
+            console.error(err.message)
+            console.error(err)
+            process.exit(1)
+          }
+          process.exit(0)
+        })
+    )
   } else {
     var server = null
     var host = null
