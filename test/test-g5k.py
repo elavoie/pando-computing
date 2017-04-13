@@ -63,6 +63,7 @@ interrupted = False
 def signal_handler(signal, frame):
     global interrupted, workers, jobid, site
     if interrupted:
+        print('\n Releasing nodes')
         execo_g5k.oardel([(jobid, site)])
         sys.exit(1)
     else:
@@ -80,6 +81,7 @@ class App(Cmd):
         interrupted = False
         print 'interrupting previous command'
         workers.kill()
+        execo.sleep(1)
         print 'sending command: ' + line
         workers = execo.Remote(
                 line,
@@ -103,10 +105,7 @@ if jobid:
         # Possibly open more than one connection per machine
         cores = nodes * args.nb_cores
         print cores
-        print 'Starting %d workers with cmd: %s' % (len(cores), workers_cmd)
-        workers = execo.Remote(
-                workers_cmd,
-                cores).start()
+        print 'Example cmd: %s' % (workers_cmd)
         app.prompt = '%s (%d node(s), %d core(s)/node)> ' % (site, args.volunteers, args.nb_cores)
 	app.cmdloop()
         # execo.sleep(600)

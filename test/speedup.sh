@@ -16,6 +16,6 @@ MAX_DEGREE=10;
 INTERVAL=3000;
 
 mkdir -p $DIR;
-echo 'Saving experiment settings in ' $DIR
+echo 'Saving experiment settings in ' $DIR >&2
 echo '{ "countNb":'$COUNT_NB', "maxDegree": '$MAX_DEGREE', "function": "'$FUNCTION'", "delegationFactor":'$DELEGATION_FACTOR' }' > $SETTINGS
 $COUNT | $PANDO $FUNCTION $@ | $TIME $EXPECT_SQUARE 2> >(tee $TIMING >&2)
