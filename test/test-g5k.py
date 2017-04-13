@@ -2,6 +2,9 @@
 import execo
 import execo_g5k
 import argparse
+from cmd import Cmd
+import signal
+import sys
 
 parser = argparse.ArgumentParser(
         description='Run the spawn-node/volunteer test on Grid5000')
@@ -22,6 +25,12 @@ parser.add_argument(
         help='number of browser tabs to open on each core',
         default=1)
 
+parser.add_argument(
+        'nb_cores',
+        type=int,
+        help='number of cores to use on each node',
+        default=1)
+
 args = parser.parse_args()
 
 nb_nodes = (args.volunteers)
@@ -35,18 +44,48 @@ print 'Submitting job request for %i nodes (%i cores)' % (nb_nodes, nb_nodes*8)
 
 # workers_cmd = '. pando-computing/test/setup-grid5k.sh ' + \
 #              ' && electron pando-computing/test/volunteer-tabs %s %s' % \
-#              (args.nb_tabs, args.host) 
+#              (args.nb_tabs, args.host)
 setup_cmd = ". ~/pando-computing/test/setup-grid5k.sh"
 
 # workers_cmd = 'electron pando-computing/test/volunteer-tabs %s %s' % \
-#               (args.nb_tabs, args.host) 
+#               (args.nb_tabs, args.host)
 workers_cmd = "Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &" + \
               "export DISPLAY=':99.0'; " + \
               'electron pando-computing/test/volunteer-tabs %s %s' % \
-               (args.nb_tabs, args.host) 
+               (args.nb_tabs, args.host)
 
 
 params = execo_g5k.default_oarsh_oarcp_params
+
+interrupted = False
+
+
+def signal_handler(signal, frame):
+    global interrupted, workers, jobid, site
+    if interrupted:
+        execo_g5k.oardel([(jobid, site)])
+        sys.exit(1)
+    else:
+        print('\n  Press Ctrl+C again to exit')
+        interrupted = True
+        if workers is not None:
+            workers.kill()
+
+signal.signal(signal.SIGINT, signal_handler)
+
+
+class App(Cmd):
+    def default(self, line):
+        global interrupted, workers, cores
+        interrupted = False
+        print 'interrupting previous command'
+        workers.kill()
+        print 'sending command: ' + line
+        workers = execo.Remote(
+                workers_cmd,
+                cores).start()
+
+app = App()
 
 if jobid:
     try:
@@ -60,15 +99,18 @@ if jobid:
                 setup_cmd,
                 nodes).start()
         workers.expect('Worker Setup Completed')
-        # Open one connection per core (there are 8 cores per node in grenoble)
-        cores = nodes * 1
+        workers.kill()
+        # Possibly open more than one connection per machine
+        cores = nodes * args.nb_cores
         print cores
-        print 'Starting %d workers with cmd: %s'%(len(cores),workers_cmd)
+        print 'Starting %d workers with cmd: %s' % (len(cores), workers_cmd)
         workers = execo.Remote(
                 workers_cmd,
                 cores).start()
-        execo.sleep(600)
-        print 'Workers done'
+        app.prompt = 'g5k (%d workers)> ' % (len(cores))
+        app.cmdloop('starting interpreter')
+        # execo.sleep(600)
+        # print 'Workers done'
 
     finally:
         execo_g5k.oardel([(jobid, site)])
