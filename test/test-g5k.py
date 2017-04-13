@@ -82,7 +82,7 @@ class App(Cmd):
         workers.kill()
         print 'sending command: ' + line
         workers = execo.Remote(
-                workers_cmd,
+                line,
                 cores).start()
 
 app = App()
@@ -107,8 +107,8 @@ if jobid:
         workers = execo.Remote(
                 workers_cmd,
                 cores).start()
-        app.prompt = 'g5k (%d workers)> ' % (len(cores))
-        app.cmdloop('starting interpreter')
+        app.prompt = '%s (%d node(s), %d core(s)/node)> ' % (site, args.volunteers, args.nb_cores)
+	app.cmdloop()
         # execo.sleep(600)
         # print 'Workers done'
 
