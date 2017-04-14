@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Based on https://chromium.googlesource.com/chromium/src/+/lkgr/headless/README.md
 import argparse
 import subprocess
 
