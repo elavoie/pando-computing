@@ -49,9 +49,11 @@ setup_cmd = ". ~/pando-computing/test/setup-grid5k.sh"
 
 # workers_cmd = 'electron pando-computing/test/volunteer-tabs %s %s' % \
 #               (args.nb_tabs, args.host)
-workers_cmd = "Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &" + \
-              "export DISPLAY=':99.0'; " + \
-              'electron pando-computing/test/volunteer-tabs %s %s' % \
+#workers_cmd = "Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &" + \
+#              "export DISPLAY=':99.0'; " + \
+#              'electron pando-computing/test/volunteer-tabs %s %s' % \
+#               (args.nb_tabs, args.host)
+workers_cmd = 'pando-computing/test/chromium-tabs %s %s' % \
                (args.nb_tabs, args.host)
 
 
