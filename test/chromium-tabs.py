@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+import argparse
+import subprocess
+
+parser = argparse.ArgumentParser(
+        description='Start chromium with multiple tabs')
+parser.add_argument(
+        'volunteers',
+        metavar='N',
+        type=int,
+        help='number of volunteer nodes to use (8 cores per node)',
+        default=1)
+parser.add_argument(
+        'host',
+        type=str,
+        help='host to connect to',
+        default='localhost:5000')
+
+args = parser.parse_args()
+
+cmd = "chromium --headless --disable-gpu --remote-debugging-port=9222 "
+urls = (args.host + ' ') * args.volunteers
+
+subprocess.call(cmd + urls, shell=True)
