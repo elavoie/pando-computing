@@ -1,0 +1,36 @@
+#!/usr/bin/env node
+
+var pull = require('pull-stream')
+var toPull = require('stream-to-pull-stream')
+var split = require('split')
+var collatz = require('../examples/collatz')
+
+var count = process.argv[2] ? Number.parseInt(process.argv[2]) : 0
+ 
+process.stdout.on('error', function( err ) {
+  if (err.code == "EPIPE") {
+    process.exit(1);
+  }
+});
+
+pull(
+    toPull.source(process.stdin.pipe(split())),
+    pull.map(function (x) { 
+        var c = count++
+        var result = null
+        collatz['/pando/1.0.0'](c, function (err, r) { 
+            if (err) throw err
+            result = r
+        })
+        if (result === Number.parseInt(x)) 
+            return x
+        else if (x === '') {
+            process.exit(0)
+        } else {
+            process.stderr.write('error got ' +  x + ' instead of ' + result + '\n')
+            process.exit(1)
+        }
+    }),
+    pull.map(function (x) { return String(x) + '\n' }),
+    toPull.sink(process.stdout)
+)

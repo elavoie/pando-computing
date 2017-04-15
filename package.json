@@ -51,8 +51,9 @@
     "ws": "^1.1.1"
   },
   "devDependencies": {
-    "tape": "^4.6.3",
+    "bignumber.js": "^4.0.1",
     "electron": "^1.4.15",
-    "pull-probe": "^1.0.2"
+    "pull-probe": "^1.0.2",
+    "tape": "^4.6.3"
   }
 }

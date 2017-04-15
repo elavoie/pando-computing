@@ -1,0 +1,48 @@
+#!/usr/bin/env node
+
+var pull = require('pull-stream')
+var toPull = require('stream-to-pull-stream')
+var Big = require('bignumber.js')
+
+process.stdout.on('error', function( err ) {
+    if (err.code == "EPIPE") {
+        process.exit(1);
+    }
+});
+
+var limit = undefined
+if (process.argv.length >= 2) {
+   var limit = new Big(process.argv[2]) || new Big(Infinity)
+}
+var digits = process.argv[3] ? Number.parseInt(process.argv[3]) : 0
+
+var start
+if (digits === 0) {
+  start = new Big(0)
+} else if (digits >= 1) {
+  start = new Big('1' + (new Array(digits).join('0')))
+} else {
+  throw new Error('Invalid number of digit: ' + digits)
+}
+
+function countBig(n, start) {
+  var i = start || new Big(0)
+
+  return function source (abort, cb) {
+    if (abort) cb(true)
+
+    if (i.gte(n)) {
+      cb(true)      
+    }    
+
+    var j = i
+    i = i.add(1)
+    cb(null, j) 
+  }
+}
+
+pull(
+    countBig(limit.add(start), start),
+    pull.map(function (x) { return String(x) + '\n' }),
+    toPull.sink(process.stdout)
+)
