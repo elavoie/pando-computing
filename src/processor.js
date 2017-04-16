@@ -6,6 +6,7 @@ var toPull = require('stream-to-pull-stream')
 var toObject = require('pull-stream-function-to-object')
 var debug = require('debug')
 var probe = require('pull-probe')
+var setImmediate = require('async.util.setimmediate')
 
 var processorNb = 0
 
@@ -100,7 +101,9 @@ function createProcessor (node, opts) {
           if (processingEnded) {
             cb(processingEnded)
           } else {
-            opts.bundle(x, cb)
+            setImmediate(function () {
+              opts.bundle(x, cb)
+            })
           }
         }),
         pull.map(function (x) { return String(x) }),
