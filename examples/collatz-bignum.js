@@ -14,11 +14,25 @@ function collatz (n) {
   return y
 }
 
+module.exports = collatz
+
 // Pando convention
 module.exports['/pando/1.0.0'] = function (x, cb) {
   try {
-    var r = collatz(x)
-    cb(null, r)
+    var interval = JSON.parse(x)
+    var start = new Big(interval.start)
+    var range = new Big(interval.range)
+    var limit = start.add(range)
+    var largest = 0
+
+    for (var i = start; i.lt(limit); i = i.add(1)) {
+      var r = collatz(i)
+      if (r > largest) {
+        largest = r
+      }
+    }
+
+    cb(null, largest)
   } catch (e) {
     cb(e)
   }
