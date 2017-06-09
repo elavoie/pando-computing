@@ -5,8 +5,6 @@ var log = debug('pando')
 var parse = require('../src/parse.js')
 var bundle = require('../src/bundle.js')
 var electronWebRTC = require('electron-webrtc')
-var SegfaultHandler = require('segfault-handler')
-SegfaultHandler.registerHandler('crash.log') // With no argument, SegfaultHandler will generate a generic log file name
 var createProcessor = require('../src/processor.js')
 var Node = require('webrtc-tree-overlay')
 var Server = require('pando-server')
