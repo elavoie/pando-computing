@@ -10,6 +10,7 @@ var log = debug('test')
 module.exports = function run (valueNb, workerNb, degree, seed) {
   return function (t) {
     var wrtc = require('electron-webrtc')()
+    wrtc.on('error', console.log)
 
     valueNb = valueNb || 24 // Number of values to compute
     workerNb = workerNb || 6 // Number of workers to use
