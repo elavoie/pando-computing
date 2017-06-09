@@ -1,6 +1,6 @@
 {
   "name": "pando-computing",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "description": "Distribute processing of a stream of items to volunteers on the web.",
   "bin": {
     "pando": "bin/index.js"
@@ -36,6 +36,7 @@
     "pando-server": "^1.4.2",
     "pull-lend-stream": "^1.1.8",
     "pull-limit": "^1.2.2",
+    "pull-probe": "^1.0.2",
     "pull-stream": "^3.5.0",
     "pull-sync": "^2.0.1",
     "pull-ws": "github:elavoie/pull-ws",

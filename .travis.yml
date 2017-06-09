@@ -1,0 +1,18 @@
+language: node_js
+
+node_js:
+  - "node"
+  - "7"
+  - "6"
+  - "5"
+  - "4"
+
+branches:
+  only:
+    - master
+notifications:
+  email:
+    recipients:
+      - github@ericklavoie.com
+    on_success: change
+    on_failure: always
