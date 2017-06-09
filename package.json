@@ -38,6 +38,7 @@
     "pull-limit": "^1.2.2",
     "pull-probe": "^1.0.2",
     "pull-stream": "^3.5.0",
+    "pull-stream-function-to-object": "^1.0.1",
     "pull-sync": "^2.0.1",
     "pull-ws": "github:elavoie/pull-ws",
     "request": "^2.79.0",
