@@ -10,7 +10,10 @@ var log = debug('test')
 module.exports = function run (valueNb, workerNb, degree, seed) {
   return function (t) {
     var wrtc = require('electron-webrtc')()
-    wrtc.on('error', console.log)
+    wrtc.on('error', function (err, source) {
+      console.log(err)
+      console.log(source)
+    })
 
     valueNb = valueNb || 24 // Number of values to compute
     workerNb = workerNb || 6 // Number of workers to use
@@ -70,10 +73,10 @@ module.exports = function run (valueNb, workerNb, degree, seed) {
           clearTimeout(timeout)
           t.deepEqual(actual, expected)
           try {
-            console.log('closing server')
-            server.close()
             console.log('closing bootstrap client')
             bootstrap.close()
+            console.log('closing server')
+            server.close()
             console.log('closing root node')
             root.close()
             console.log('closing workers')
