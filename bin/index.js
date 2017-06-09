@@ -17,6 +17,7 @@ var http = require('http')
 var WebSocket = require('ws')
 var express = require('express')
 var probe = require('pull-probe')
+var mkdirp = require('mkdirp')
 
 var args = parse(process.argv.slice(2))
 
@@ -86,9 +87,11 @@ bundle(args.module, function (err, bundlePath) {
     var host = null
     if (!args.host) {
       log('creating bootstrap server')
+      var publicDir = path.join(__dirname, '../local-server/public')
+      mkdirp.sync(publicDir)
       server = new Server({
         secret: args.secret,
-        publicDir: path.join(__dirname, '../local-server/public'),
+        publicDir: publicDir,
         port: args.port,
         seed: args.seed
       })

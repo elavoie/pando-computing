@@ -1,6 +1,6 @@
 {
   "name": "pando-computing",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "Distribute processing of a stream of items to volunteers on the web.",
   "bin": {
     "pando": "bin/index.js"
@@ -34,6 +34,7 @@
     "electron-webrtc": "^0.3.0",
     "express": "^4.15.3",
     "minimist": "^1.2.0",
+    "mkdirp": "^0.5.1",
     "pando-server": "^1.4.3",
     "pull-lend-stream": "^1.1.8",
     "pull-limit": "^1.2.2",
