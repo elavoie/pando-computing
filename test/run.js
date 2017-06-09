@@ -68,13 +68,18 @@ module.exports = function run (valueNb, workerNb, degree, seed) {
           closed = true
           clearTimeout(timeout)
           t.deepEqual(actual, expected)
-          server.close()
-          bootstrap.close()
-          root.close()
-          workers.forEach(function (w) {
-            w.close()
-          })
-          wrtc.close()
+          try {
+            server.close()
+            bootstrap.close()
+            root.close()
+            workers.forEach(function (w) {
+              w.close()
+            })
+            wrtc.close()
+          } catch (e) {
+            console.log(e)
+            console.log(e.message)
+          }
           t.end()
         }
       }
