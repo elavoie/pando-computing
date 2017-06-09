@@ -53,8 +53,6 @@
   },
   "devDependencies": {
     "bignumber.js": "^4.0.1",
-    "electron": "^1.4.15",
-    "pull-probe": "^1.0.2",
     "tape": "^4.6.3"
   }
 }
