@@ -15,19 +15,22 @@
       ul li {
         line-height: 1.4;
       }
+      textarea {
+        font-size: 12pt;
+      } 
     </style>
   </head>
 <body>
   <script src='./simplewebsocket.min.js'></script>
   <h1>root status</h1>
-  <p><a id='root-status'></a></p>
+  <textarea cols=80 rows=30 id='root-status'></textarea>
   <h1>global status</h1>
   <div id='global-status'></div>
   <script>
     var host = location.origin.replace(/^http:\/\//, '')
     var socket = SimpleWebsocket('ws://' + host + '/root-status')
     socket.on('data', function (data) {
-      document.querySelector('#root-status').textContent = data
+      document.querySelector('#root-status').textContent = JSON.stringify(JSON.parse(data), null, '    ')
     })
     var monitoringHost = host.split(':')
     monitoringHost[1] = String(Number.parseInt(monitoringHost[1]) - 1)
