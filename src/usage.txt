@@ -34,6 +34,9 @@ OPTIONS (default?):
                 supplied to pando-server.  Does not matter when not
                 communicating with a public server.
 
+    --version   (false, Boolean)
+                Prints the version number. 
+
 ADVANCED (used for testing, development, and optimization):
 
     --bootstrap-timeout=T (true, T=60, Number)
