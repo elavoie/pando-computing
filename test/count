@@ -10,11 +10,12 @@ process.stdout.on('error', function( err ) {
     }
 });
 
-var limit = undefined
-if (process.argv.length >= 2) {
-   var limit = Number.parseInt(process.argv[2]) - 1 || undefined
+var limit = Infinity
+if (process.argv.length >= 2 && process.argv[2] != null) {
+    limit = Number.parseInt(process.argv[2]) - 1
 }
-var start = process.argv[3] ? new Big((process.argv[3])) : 0
+
+var start = process.argv[3] ? new Big((process.argv[3])) : new Big(0)
 
 pull(
     (limit === 0) ? pull.values([0]) : pull.count(limit),
