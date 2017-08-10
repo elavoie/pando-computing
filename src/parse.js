@@ -12,6 +12,12 @@ function help () {
   process.exit(0)
 }
 
+function version () {
+  var p = require('../package.json')
+  console.log(p.version)
+  process.exit(0)
+}
+
 var configFile = path.join(process.env.HOME, '.pando/config.json')
 var config = {}
 try {
@@ -30,7 +36,8 @@ try {
 
 var options = {
   alias: {
-    'help': ['h']
+    'help': ['h'],
+    'version': ['v']
   },
   boolean: [
     'global-monitoring',
@@ -39,7 +46,8 @@ var options = {
     'local',
     'public',
     'start-idle',
-    'stdin'
+    'stdin',
+    'version'
   ],
   default: {
     'bootstrap-timeout': config['bootstrap-timeout'] || 60, // seconds
@@ -57,7 +65,8 @@ var options = {
     port: config['port'] || 5000,
     secret: config['secret'] || 'INSECURE-SECRET',
     seed: config['seed'] || null,
-    stdin: config['stdin'] || false
+    stdin: config['stdin'] || false,
+    version: false
   }
 }
 
@@ -67,8 +76,12 @@ module.exports = function (argv) {
   log('after minimist: ')
   log(argv)
 
-  if (argv._.length === 0 || argv.help) {
+  if ((argv._.length === 0 && !argv.version) || argv.help) {
     help()
+  }
+
+  if (argv.version) {
+    version()
   }
 
   argv.module = path.join(process.cwd(), argv._[0])
