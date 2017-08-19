@@ -453,7 +453,14 @@ function createProcessor (node, opts) {
     pull.through(function () { unprocessedInputs++ }),
     limitedLender,
     pull.through(function () { unprocessedInputs-- }),
-    pull.map(function (x) { return JSON.parse(x) })
+    pull.map(function (x) {
+      try {
+        return JSON.parse(x)
+      } catch (e) {
+        console.error('Error when parsing:\n' + x)
+        throw e
+      }
+    })
   ))
 
   node.sink = processor.sink.bind(lender)
