@@ -97,7 +97,6 @@ function createProcessor (node, opts) {
         stream,
         probe('processing-input'),
         pull.asyncMap(function (x, cb) {
-          x = JSON.parse(x)
           if (processingEnded) {
             cb(processingEnded)
           } else {
@@ -449,18 +448,9 @@ function createProcessor (node, opts) {
   var limitedLender = limit(lender, 10)
 
   var processor = toObject(pull(
-    pull.map(function (x) { return JSON.stringify(x) }),
     pull.through(function () { unprocessedInputs++ }),
     limitedLender,
-    pull.through(function () { unprocessedInputs-- }),
-    pull.map(function (x) {
-      try {
-        return JSON.parse(x)
-      } catch (e) {
-        console.error('Error when parsing:\n' + x)
-        throw e
-      }
-    })
+    pull.through(function () { unprocessedInputs-- })
   ))
 
   node.sink = processor.sink.bind(lender)
