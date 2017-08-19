@@ -104,9 +104,9 @@ module.exports = function run (valueNb, workerNb, degree, seed) {
           log('input: ' + x)
         }),
         probe('test-before-processor'),
-        pull.through(function (x) { return JSON.stringify(x) }),
+        pull.map(function (x) { return JSON.stringify(x) }),
         processor,
-        pull.through(function (x) { return JSON.parse(x) }),
+        pull.map(function (x) { return JSON.parse(x) }),
         probe('test-after-processor'),
         pull.through((function () {
           var lastPercent = 0
