@@ -16,6 +16,8 @@ However, volunteers should be collaborative. If they produce a result it is
 assumed that it is correct with regard to the code provided. No attempt is made
 to invalidate results produced by malicious volunteers. Use at your own risks.
 
+More details and worked out examples are available in the [handbook](https://github.com/elavoie/pando-handbook).
+
 # Install 
 
     npm install -g pando-computing
