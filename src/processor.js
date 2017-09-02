@@ -7,6 +7,7 @@ var toObject = require('pull-stream-function-to-object')
 var debug = require('debug')
 var probe = require('pull-probe')
 var setImmediate = require('async.util.setimmediate')
+var zlib = require('zlib')
 
 var processorNb = 0
 
@@ -106,6 +107,7 @@ function createProcessor (node, opts) {
           }
         }),
         pull.map(function (x) { return String(x) }),
+        pull.map(function (x) { return zlib.gzipSync(x) }),
         probe('processing-output'),
         stream
       )
@@ -450,6 +452,7 @@ function createProcessor (node, opts) {
   var processor = toObject(pull(
     pull.through(function () { unprocessedInputs++ }),
     limitedLender,
+    pull.map(function (x) { return zlib.gunzipSync(x) }),
     pull.through(function () { unprocessedInputs-- })
   ))
 
