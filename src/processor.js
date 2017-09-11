@@ -107,7 +107,7 @@ function createProcessor (node, opts) {
           }
         }),
         pull.map(function (x) { return String(x) }),
-        pull.map(function (x) { return zlib.gzipSync(x) }),
+        pull.map(function (x) { return zlib.gzipSync(new Buffer(x)).toString('base64') }),
         probe('processing-output'),
         stream
       )
@@ -452,7 +452,7 @@ function createProcessor (node, opts) {
   var processor = toObject(pull(
     pull.through(function () { unprocessedInputs++ }),
     limitedLender,
-    pull.map(function (x) { return zlib.gunzipSync(x) }),
+    pull.map(function (x) { return zlib.gunzipSync(new Buffer(String(x), 'base64')).toString() }),
     pull.through(function () { unprocessedInputs-- })
   ))
 
