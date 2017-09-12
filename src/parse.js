@@ -100,7 +100,7 @@ module.exports = function (argv) {
   if (argv.stdin) {
     argv.items = toPull.source(process.stdin.pipe(split(undefined, null, { trailing: false })))
   } else {
-    argv.items = pull.values(argv._.slice(1))
+    argv.items = pull.values(argv._.slice(1).map(function (x) { return String(x) }))
   }
 
   if (argv.public && !argv.host) {
