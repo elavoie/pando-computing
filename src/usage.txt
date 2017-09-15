@@ -55,6 +55,10 @@ ADVANCED (used for testing, development, and optimization):
                 combined and reported as additional information on the
                 monitoring page.
 
+    --ice-servers=URLS (true, URLS='stun:stun.l.google.com:19302', String)
+                Comma-separated list of ice servers used to establish the WebRTC
+                connections.
+
     --reporting-interval=I (true, I=3, Number)
                 Interval in seconds between the status updates given by nodes.
 

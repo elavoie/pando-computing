@@ -15,6 +15,7 @@ module.exports['webrtc'] = function (host, bundle, config) {
   })
   var nodeOpts = {
     requestTimeoutInMs: config.requestTimeoutInMs,
+    peerOpts: { config: { iceServers: config.iceServers } },
     maxDegree: config.degree
   }
   console.log('Node() opts:')

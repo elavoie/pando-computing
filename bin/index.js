@@ -111,6 +111,7 @@ bundle(args.module, function (err, bundlePath) {
       'window.pando = { config: ' + JSON.stringify({
         degree: args.degree,
         globalMonitoring: args['global-monitoring'],
+        iceServers: args['ice-servers'],
         reportingInterval: args['reporting-interval'] * 1000,
         requestTimeoutInMs: args['bootstrap-timeout'] * 1000
       }) + ' }'
@@ -133,7 +134,7 @@ bundle(args.module, function (err, bundlePath) {
       log('creating root node')
       var root = new Node(bootstrap, {
         requestTimeoutInMs: args['bootstrap-timeout'] * 1000, // ms
-        peerOpts: { wrtc: wrtc },
+        peerOpts: { wrtc: wrtc, config: { iceServers: args['ice-servers'] } },
         maxDegree: args.degree
       }).becomeRoot(args.secret)
 

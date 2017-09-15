@@ -58,6 +58,7 @@ var options = {
     headless: config['headless'] || false,
     help: false,
     host: config['host'] || null,
+    'ice-servers': config['iceServers'] || 'stun:stun.l.google.com:19302',
     items: pull.values([]),
     limit: 1,
     local: config['local'] || false,
@@ -106,6 +107,9 @@ module.exports = function (argv) {
   if (argv.public && !argv.host) {
     throw new Error('Not hostname provided for public server')
   }
+
+  // Provide the iceServers in the correct format
+  argv['ice-servers'] = argv['ice-servers'].split(',').map(function (url) { return { url: url } })
 
   log('returning argv')
   log(argv)
