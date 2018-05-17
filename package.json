@@ -1,6 +1,6 @@
 {
   "name": "pando-computing",
-  "version": "0.9.13",
+  "version": "0.10.0",
   "description": "Distribute processing of a stream of items to volunteers on the web.",
   "bin": {
     "pando": "bin/index.js"
@@ -27,8 +27,8 @@
   },
   "homepage": "https://github.com/elavoie/pando-computing#readme",
   "dependencies": {
-    "bignumber.js": "^4.0.2",
     "async.util.setimmediate": "^0.5.2",
+    "bignumber.js": "^4.0.2",
     "browserify": "^13.3.0",
     "debug": "^2.6.8",
     "electron": "^1.7.3",
@@ -42,7 +42,7 @@
     "pull-probe": "^1.0.2",
     "pull-stream": "^3.6.0",
     "pull-stream-function-to-object": "^1.0.1",
-    "pull-sync": "^2.0.1",
+    "pull-sync": "^2.0.5",
     "pull-ws": "github:elavoie/pull-ws",
     "request": "^2.79.0",
     "simple-peer": "^6.2.1",

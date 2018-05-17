@@ -47,6 +47,7 @@ var options = {
     'public',
     'start-idle',
     'stdin',
+    'sync-stdio',
     'version'
   ],
   default: {
@@ -66,7 +67,8 @@ var options = {
     port: config['port'] || 5000,
     secret: config['secret'] || 'INSECURE-SECRET',
     seed: config['seed'] || null,
-    stdin: config['stdin'] || false,
+    stdin: config['stdin'] || config['sync-stdio'] || false,
+    'sync-stdio': config['syncStdio'] || false,
     version: false
   }
 }
@@ -98,9 +100,15 @@ module.exports = function (argv) {
     process.exit(1)
   }
 
+  if (argv['sync-stdio']) {
+    argv.stdin = true
+  }
+
   if (argv.stdin) {
+    log('reading from standard input')
     argv.items = toPull.source(process.stdin.pipe(split(undefined, null, { trailing: false })))
   } else {
+    log('reading commandline arguments')
     argv.items = pull.values(argv._.slice(1).map(function (x) { return String(x) }))
   }
 

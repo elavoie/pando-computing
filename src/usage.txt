@@ -34,8 +34,13 @@ OPTIONS (default?):
                 supplied to pando-server.  Does not matter when not
                 communicating with a public server.
 
+    --sync-stdio (false, Boolean)
+                Uses pull-sync on the input and output of the Pando process.
+                Makes Pando transparently act as a transformer in other
+                processes (also using pull-sync). Implies --stdin=true.
+
     --version   (false, Boolean)
-                Prints the version number. 
+                Prints the version number.
 
 ADVANCED (used for testing, development, and optimization):
 

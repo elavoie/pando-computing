@@ -18,6 +18,8 @@ var WebSocket = require('ws')
 var express = require('express')
 var probe = require('pull-probe')
 var mkdirp = require('mkdirp')
+var sync = require('pull-sync')
+var toPull = require('stream-to-pull-stream')
 
 var args = parse(process.argv.slice(2))
 
@@ -63,17 +65,14 @@ bundle(args.module, function (err, bundlePath) {
   var statusSocket = null
   var processor = null
   if (args.local) {
+    log('local execution')
     processor = pull.asyncMap(require(args.module)['/pando/1.0.0'])
-    pull(
-      args.items,
-      pull.through(log),
-      probe('pando:input'),
-      processor,
-      probe('pando:result'),
-      pull.through(log),
-      pull.through(function (x) { process.stdout.write(String(x) + '\n') }),
-      pull.drain(null,
-        function (err) {
+
+    var io = ({
+      source: args.items,
+      sink: pull(
+        pull.map(function (x) { return String(x) + '\n' }),
+        toPull.sink(process.stdout, function (err) {
           if (err) {
             console.error(err.message)
             console.error(err)
@@ -81,6 +80,23 @@ bundle(args.module, function (err, bundlePath) {
           }
           process.exit(0)
         })
+      )
+    })
+
+    if (args['sync-stdio']) {
+      log('synchronizing stdio')
+      io = sync(io)
+    }
+
+    log('executing function locally')
+    pull(
+      io,
+      pull.through(log),
+      probe('pando:input'),
+      processor,
+      probe('pando:result'),
+      pull.through(log),
+      io
     )
   } else {
     var server = null
@@ -161,25 +177,35 @@ bundle(args.module, function (err, bundlePath) {
         if (processor) processor.close()
       }
 
+      var io = {
+        source: args.items,
+        sink: pull(
+          pull.through(function (x) { process.stdout.write(String(x) + '\n') }),
+          pull.drain(null,
+            function (err) {
+              if (err) {
+                console.error(err.message)
+                console.error(err)
+                close()
+                process.exit(1)
+              }
+              close()
+              process.exit(0)
+            }))
+      }
+
+      if (args['sync-stdio']) {
+        io = sync(io)
+      }
+
       pull(
-        args.items,
+        io,
         pull.through(log),
         probe('pando:input'),
         processor,
         probe('pando:result'),
         pull.through(log),
-        pull.through(function (x) { process.stdout.write(String(x) + '\n') }),
-        pull.drain(null,
-          function (err) {
-            if (err) {
-              console.error(err.message)
-              console.error(err)
-              close()
-              process.exit(1)
-            }
-            close()
-            process.exit(0)
-          })
+        io
       )
     })
 
