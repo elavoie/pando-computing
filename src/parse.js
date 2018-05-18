@@ -51,6 +51,7 @@ var options = {
     'version'
   ],
   default: {
+    'batch-size': config['batch-size'] || 1,
     'bootstrap-timeout': config['bootstrap-timeout'] || 60, // seconds
     'global-monitoring': config['global-monitoring'] || false,
     'reporting-interval': 3, // seconds
@@ -68,7 +69,7 @@ var options = {
     secret: config['secret'] || 'INSECURE-SECRET',
     seed: config['seed'] || null,
     stdin: config['stdin'] || config['sync-stdio'] || false,
-    'sync-stdio': config['syncStdio'] || false,
+    'sync-stdio': config['sync-stdio'] || false,
     version: false
   }
 }

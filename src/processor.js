@@ -149,10 +149,6 @@ function createProcessor (node, opts) {
     opts.startProcessing = true
   }
 
-  if (!opts.hasOwnProperty('initialChildLimit')) {
-    opts.initialChildLimit = 1
-  }
-
   if (!opts.hasOwnProperty('reportingInterval')) {
     opts.reportingInterval = 3 * 1000 // ms
   }
@@ -164,6 +160,10 @@ function createProcessor (node, opts) {
       log('computed ' + r)
       cb(null, r)
     }, 100)
+  }
+
+  if (!opts.hasOwnProperty('batchSize')) {
+    opts.batchSize = 1
   }
 
   log('creating processor with options')
@@ -332,18 +332,14 @@ function createProcessor (node, opts) {
     })
     child.on('status', function (status) {
       if (limitedChannel) {
-        // Ensure each leaf node (which performs the computations) has at least
-        // maxDegree tasks to work on so that they can dispatch them quickly if
-        // maxDegree children join. If maxDegree children join under them, we
-        // will receive a status update with the new number of leaf nodes and
-        // the limit will be updated accordingly.
-        var limit = (status.nbLeafNodes) * node.maxDegree
-
-        if (limit > 0) {
-          status.limit = limit
-          log('updating child(' + idSummary(child.id) + ') limit to ' + status.limit)
-          limitedChannel.updateLimit(status.limit)
+        var limit = opts.batchSize
+        if (status.nbLeafNodes > 0) {
+          limit = (status.nbLeafNodes) * opts.batchSize
         }
+
+        status.limit = limit
+        log('updating child(' + idSummary(child.id) + ') limit to ' + status.limit)
+        limitedChannel.updateLimit(status.limit)
       }
       addStatus(child.id, status)
       // TODO: stallCheck(child)
@@ -381,7 +377,7 @@ function createProcessor (node, opts) {
         processingEnded = true
 
         var pullDataChannel = toPull.duplex(dataChannel)
-        limitedChannel = limit(pullDataChannel, opts.initialChildLimit)
+        limitedChannel = limit(pullDataChannel, opts.batchSize)
 
         var unprocessedInputs = 0
 
@@ -435,7 +431,7 @@ function createProcessor (node, opts) {
   node.on('status', function (summary) {
     log('status summary: ' + JSON.stringify(summary))
     if (limitedLender && summary.nbLeafNodes > 0) {
-      var updatedLimit = summary.nbLeafNodes * node.maxDegree
+      var updatedLimit = summary.nbLeafNodes * opts.batchSize
       log('updating processor limit to ' + updatedLimit)
       limitedLender.updateLimit(updatedLimit)
     }

@@ -26,7 +26,8 @@ module.exports['webrtc'] = function (host, bundle, config) {
     bundle: bundle['/pando/1.0.0'],
     globalMonitoring: config.globalMonitoring,
     reportingInterval: config.reportingInterval,
-    startProcessing: true
+    startProcessing: true,
+    batchSize: config.batchSize
   })
 
   var closed = false

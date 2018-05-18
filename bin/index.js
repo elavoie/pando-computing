@@ -125,6 +125,7 @@ bundle(args.module, function (err, bundlePath) {
     fs.writeFileSync(
       path.join(__dirname, '../public/config.js'),
       'window.pando = { config: ' + JSON.stringify({
+        batchSize: args['batch-size'],
         degree: args.degree,
         globalMonitoring: args['global-monitoring'],
         iceServers: args['ice-servers'],
@@ -155,6 +156,7 @@ bundle(args.module, function (err, bundlePath) {
       }).becomeRoot(args.secret)
 
       processor = createProcessor(root, {
+        batchSize: args['batch-size'],
         bundle: require(bundlePath)['/pando/1.0.0'],
         globalMonitoring: args['global-monitoring'],
         reportingInterval: args['reporting-interval'] * 1000, // ms

@@ -44,6 +44,13 @@ OPTIONS (default?):
 
 ADVANCED (used for testing, development, and optimization):
 
+    --batch-size=B (true, B=1, Number)
+                Number of inputs to send per known processor. If the inputs
+                are fast to process this number should be higher, otherwise
+                it should be low. To maximize the throughput, this number
+                should the lowest that still ensures that the fastest
+                processors are kept busy all the time.
+
     --bootstrap-timeout=T (true, T=60, Number)
                 Maximum time allowed for a new volunteer to establish a
                 successful connection (in seconds).
