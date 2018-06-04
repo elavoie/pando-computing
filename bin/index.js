@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 var pull = require('pull-stream')
 var debug = require('debug')
-var log = debug('pando')
+var log = debug('pando-computing')
 var parse = require('../src/parse.js')
 var bundle = require('../src/bundle.js')
 var electronWebRTC = require('electron-webrtc')
@@ -51,6 +51,7 @@ function getIPAddresses () {
 }
 
 process.stdout.on('error', function (err) {
+  log('process.stdout:error(' + err + ')')
   if (err.code === 'EPIPE') {
     process.exit(1)
   }
@@ -73,6 +74,7 @@ bundle(args.module, function (err, bundlePath) {
       sink: pull(
         pull.map(function (x) { return String(x) + '\n' }),
         toPull.sink(process.stdout, function (err) {
+          log('process.stdout:done(' + err + ')')
           if (err) {
             console.error(err.message)
             console.error(err)
@@ -181,19 +183,21 @@ bundle(args.module, function (err, bundlePath) {
 
       var io = {
         source: args.items,
-        sink: pull(
-          pull.through(function (x) { process.stdout.write(String(x) + '\n') }),
-          pull.drain(null,
-            function (err) {
-              if (err) {
-                console.error(err.message)
-                console.error(err)
-                close()
-                process.exit(1)
-              }
+        sink: pull.drain(
+          function (x) { process.stdout.write(String(x) + '\n') },
+          function (err) {
+            log('drain:done(' + err + ')')
+            if (err) {
+              console.error(err.message)
+              console.error(err)
+              close()
+              process.exit(1)
+            } else {
               close()
               process.exit(0)
-            }))
+            }
+          }
+        )
       }
 
       if (args['sync-stdio']) {
