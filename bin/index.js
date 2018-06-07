@@ -136,7 +136,7 @@ bundle(args.module, function (err, bundlePath) {
       }) + ' }'
     )
 
-    log('Uploading files')
+    log('Uploading files to ' + host + ' with secret ' + args.secret)
     website.upload([
       bundlePath,
       path.join(__dirname, '../public/config.js'),

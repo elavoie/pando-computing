@@ -1,7 +1,7 @@
 var fs = require('fs')
 var path = require('path')
 var debug = require('debug')
-var log = debug('pando:parse')
+var log = debug('pando-computing')
 var pull = require('pull-stream')
 var parseArgs = require('minimist')
 var toPull = require('stream-to-pull-stream')
@@ -120,7 +120,14 @@ module.exports = function (argv) {
   // Provide the iceServers in the correct format
   argv['ice-servers'] = argv['ice-servers'].split(',').map(function (url) { return { url: url } })
 
+  if (argv.host && argv.host.indexOf('/') !== -1) {
+    log('removing trailing slashes from host: ' + argv.host)
+    // remove trailing slashes
+    argv.host = argv.host.replace('/', '')
+  }
+
   log('returning argv')
   log(argv)
   return argv
 }
+
