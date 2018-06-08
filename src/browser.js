@@ -7,12 +7,7 @@ module.exports['webrtc'] = function (host, bundle, config) {
     console.log('Missing configuration')
   }
 
-  var bootstrap = new BootstrapClient(host, {
-    cb: function (err) {
-      if (err) console.log(err)
-      close()
-    }
-  })
+  var bootstrap = new BootstrapClient(host, { secure: config.secure })
   var nodeOpts = {
     requestTimeoutInMs: config.requestTimeoutInMs,
     peerOpts: { config: { iceServers: config.iceServers } },

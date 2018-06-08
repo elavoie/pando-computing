@@ -36,7 +36,14 @@
   <script src='bundle.js'></script>
   <script src='config.js'></script>
   <script>
-    var host = location.origin.replace(/^http:\/\//, '')
+    var secure = location.origin.indexOf('https:\/\/') > -1
+
+    var host = null
+    if (secure) {
+      host = location.origin.replace(/^https:\/\//, '')
+    } else {
+      host = location.origin.replace(/^http:\/\//, '')
+    }
 
     var seconds = 3
     var restarting = false
@@ -65,6 +72,7 @@
     function start () {
       console.log('start()')
       var processor = null
+      window.pando.config.secure = secure
       setTimeout(function () {
         if (location.hash === '#ws') {
           //volunteer['ws'](host, bundle)
@@ -119,7 +127,8 @@
     countdown(0, 'Connecting', start)
 
     if (window.pando.config.globalMonitoring) {
-      var socket = SimpleWebsocket('ws://' + host + '/monitoring/processor')
+      var protocol = secure ? 'wss://' : 'ws://'
+      var socket = SimpleWebsocket(protocol + host + '/monitoring/processor')
       socket.on('connect', function () {
         console.log('reporter connected')
         reporter = socket  
