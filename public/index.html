@@ -53,6 +53,7 @@
     function restart () {
       if (restarting) return
       console.log('restart()')
+      document.querySelector('#status').textContent = 'Restarting' 
       restarting = true
       if (processor) processor.close()
       processor = null
@@ -74,8 +75,10 @@
       var processor = null
       window.pando.config.secure = secure
       setTimeout(function () {
-        if (location.hash === '#ws') {
-          //volunteer['ws'](host, bundle)
+        if (location.hash === '#websocket') {
+          console.log('connecting over WebSocket')
+          var protocol = secure ? 'wss://' : 'ws://'
+          processor = volunteer['websocket'](protocol + host + '/volunteer', bundle)
         } else if (location.hash === '#webrtc') {
           processor = volunteer['webrtc'](host, bundle, window.pando.config)
         } else {
@@ -104,6 +107,7 @@
         })
         processor.on('ready', function () {
           console.log('cleared restart timeout')
+          document.querySelector('#status').textContent = 'Connected'
           clearTimeout(connectTimeout)
           restarting = false
         })

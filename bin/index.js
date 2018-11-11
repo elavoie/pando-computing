@@ -20,6 +20,8 @@ var probe = require('pull-probe')
 var mkdirp = require('mkdirp')
 var sync = require('pull-sync')
 var toPull = require('stream-to-pull-stream')
+var limit = require('pull-limit')
+var duplexWs = require('pull-ws')
 
 var args = parse(process.argv.slice(2))
 
@@ -114,6 +116,26 @@ bundle(args.module, function (err, bundlePath) {
         seed: args.seed
       })
       host = 'localhost:' + args.port
+
+      server._bootstrap.server.on('connection/volunteer',
+        function (ws) {
+          if (processor) {
+            log('volunteer connected over WebSocket')
+            processor.lendStream(function (err, stream) {
+              if (err) return log('error lender sub-stream to volunteer: ' + err)
+              log('lending sub-stream to volunteer')
+
+              pull(
+                stream,
+                probe('volunteer-input'),
+                limit(duplexWs(ws), args['batch-size']),
+                probe('volunteer-output'),
+                stream
+              )
+            })
+          }
+        })
+
       getIPAddresses().forEach(function (addr) {
         console.error('Serving volunteer code at http://' + addr + ':' + args.port)
       })

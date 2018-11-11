@@ -290,35 +290,6 @@ function createProcessor (node, opts) {
     child.destroy()
   }
 
-  function stallCheck (child) {
-    // Check whether other children
-    // are active (have non-zero unprocessedInputs).
-    // If least one is not active, we might be stalling
-    // the pipeline.
-    function stalled () {
-      var inactive = 0
-      for (var id in latestStatus) {
-        if (id !== child.id &&
-          latestStatus[id].unprocessedInputs === 0) {
-          inactive++
-        }
-      }
-      return inactive >= (node.maxDegree / 2)
-    }
-
-    if (stalled()) {
-      // Wait proportionally to the delay for reports before
-      // disconnecting a child
-      var estimatedDepth = Math.max(Math.log(childrenNb) / Math.log(node.maxDegree), 1)
-      setTimeout(function () {
-        // If we are still stalled, disconnect the child
-        if (stalled()) {
-          child.destroy()
-        }
-      }, opts.reportingInterval * estimatedDepth * 10)
-    }
-  }
-
   node.on('child-connect', function (child) {
     log('connected to child(' + idSummary(child.id) + ')')
     addChild(child)
@@ -430,24 +401,14 @@ function createProcessor (node, opts) {
 
   node.on('status', function (summary) {
     log('status summary: ' + JSON.stringify(summary))
-    if (limitedLender && summary.nbLeafNodes > 0) {
-      var updatedLimit = summary.nbLeafNodes * opts.batchSize
-      log('updating processor limit to ' + updatedLimit)
-      limitedLender.updateLimit(updatedLimit)
-    }
   })
 
   node.on('close', close)
   node.on('error', close)
 
-  // That should not be necessary but there is a bug
-  // that triggers an infinite number of reads from time
-  // to time
-  var limitedLender = limit(lender, 10)
-
   var processor = toObject(pull(
     pull.through(function () { unprocessedInputs++ }),
-    limitedLender,
+    lender,
     pull.map(function (x) { return zlib.gunzipSync(new Buffer(String(x), 'base64')).toString() }),
     pull.through(function () { unprocessedInputs-- })
   ))
@@ -459,6 +420,8 @@ function createProcessor (node, opts) {
     if (opts.startProcessing && !processingStarted) startProcessing()
     source(abort, cb)
   }
+
+  node.lendStream = lender.lendStream.bind(lender)
 
   periodicReport()
   return node

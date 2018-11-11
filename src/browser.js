@@ -1,6 +1,10 @@
 var BootstrapClient = require('webrtc-bootstrap')
 var Node = require('webrtc-tree-overlay')
 var createProcessor = require('../src/processor.js')
+var Socket = require('simple-websocket')
+var log = require('debug')('pando:browser')
+var zlib = require('zlib')
+var EE = require('event-emitter')
 
 module.exports['webrtc'] = function (host, bundle, config) {
   if (!config) {
@@ -38,3 +42,36 @@ module.exports['webrtc'] = function (host, bundle, config) {
   return processor
 }
 
+module.exports['websocket'] = function (host, bundle) {
+  var socket = new Socket(host)
+  var processor = EE({})
+
+  processor.close = function () {
+    processor.emit('close')
+    log('closing')
+  }
+
+  socket
+    .on('connect', function () {
+      processor.emit('ready')
+      log('starting processing')
+    })
+    .on('data', function (x) {
+      log('processing input: ' + x)
+      setTimeout(function () {
+        bundle['/pando/1.0.0'](x, function (err, x) {
+          if (err) socket.destroy(err)
+          socket.send(zlib.gzipSync(new Buffer(String(x))).toString('base64'))
+        })
+      }, 0)
+    })
+    .on('close', function () {
+      processor.close()
+    })
+    .on('error', function (err) {
+      log('error: ' + err)
+      processor.emit('error', err)
+    })
+
+  return processor
+}
