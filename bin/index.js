@@ -21,6 +21,7 @@ var mkdirp = require('mkdirp')
 var sync = require('pull-sync')
 var toPull = require('stream-to-pull-stream')
 var limit = require('pull-limit')
+
 var duplexWs = require('pull-ws')
 
 var args = parse(process.argv.slice(2))
@@ -181,7 +182,8 @@ bundle(args.module, function (err, bundlePath) {
 
       processor = createProcessor(root, {
         batchSize: args['batch-size'],
-        bundle: require(bundlePath)['/pando/1.0.0'],
+        bundle: !args['start-idle'] ? require(bundlePath)['/pando/1.0.0'] : 
+          function (x, cb) { console.error('Internal error, bundle should not have been executed') },
         globalMonitoring: args['global-monitoring'],
         reportingInterval: args['reporting-interval'] * 1000, // ms
         startProcessing: !args['start-idle']
