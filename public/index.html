@@ -32,12 +32,10 @@
 <div class="input-group mb-3">
   <div class="input-group-prepend">
     <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">List</button>
-    <div class="dropdown-menu">
-      <a class="dropdown-item" href="#">iPhone SE</a>
-      <a class="dropdown-item" href="#">MacBook Air 2011</a>
+    <div class="dropdown-menu" id='device-list'>
     </div>
   </div>
-  <input type="text" class="form-control" aria-label="Text input with dropdown button">
+  <input id='device-name' type="text" class="form-control" aria-label="Text input with dropdown button" onkeypress="return submit(event)">
 </div>
   <h1>status</h1>
   <div id='throughput'></div>
@@ -64,6 +62,16 @@
     var connectTimeout = null
     var reporter = null
 
+    function protocol () {
+      if (location.hash.includes('protocol=websocket')) {
+        return 'protocol=websocket'
+      } else if (location.hash.includes('protocol=webrtc')) {
+        return 'protocol=webrtc'
+      } else {
+        return ''
+      }
+    }
+
     function restart () {
       if (restarting) return
       console.log('restart()')
@@ -89,11 +97,11 @@
       var processor = null
       window.pando.config.secure = secure
       setTimeout(function () {
-        if (location.hash === '#websocket') {
+        if (location.hash.includes('protocol=websocket')) {
           console.log('connecting over WebSocket')
           var protocol = secure ? 'wss://' : 'ws://'
           processor = volunteer['websocket'](protocol + host + '/volunteer', bundle)
-        } else if (location.hash === '#webrtc') {
+        } else if (location.hash.includes('protocol=webrtc')) {
           processor = volunteer['webrtc'](host, bundle, window.pando.config)
         } else {
           processor = volunteer['webrtc'](host, bundle, window.pando.config)
@@ -152,6 +160,64 @@
         reporter = socket  
       })
     } 
+
+    // Add default list of devices
+    var deviceList = [
+      'MacBook Air 2011',
+      'iPhone SE',
+      'MacBook Pro 2016',
+      'Samsung Galaxy S6',
+      'Samsung Galaxy S7',
+      'OPPO F1FX 2016',
+      'Lenovo P2a42 2016',
+      'Huawei P10 lite 2017',
+      'Wileyfox Storm 2016',
+      'iPhone 7',
+      'LG G6 H870 2017',
+      'iPad A1822 (5th Gen) 2017',
+      'Samsung A3 2016',
+      'Samsung Galaxy S7',
+      'iPhone 6S'
+    ]
+    deviceList.sort()
+    deviceListMenu = document.getElementById('device-list')
+    deviceList.forEach(function (name) {
+      var a = document.createElement('a')
+      a.className = 'dropdown-item'
+      a.innerText = name
+      var id = name.replace(/\s/g, '_')
+      a.href = '#' + protocol() + ';device=' + id + ';'
+      a.id = id
+      a.onclick = function () { replaceDeviceName(name) } 
+      deviceListMenu.appendChild(a)
+    })
+    function getDeviceName() {
+      if (location.hash.includes('device=')) {
+        var m = location.hash.match('device=(.*);')  
+        var deviceName = document.getElementById('device-name')
+        deviceName.value = m[1].replace(/_/g, ' ')
+      }
+    }
+    function replaceDeviceName(name) {
+      var deviceName = document.getElementById('device-name')
+      deviceName.value = name
+    }
+    getDeviceName()
+
+
+    function submit(event) {
+      if (event.keyCode !== 13) return
+
+      var hash = location.hash.replace(/^#*;*/, '#;')
+      var deviceName = document.getElementById('device-name').value.replace(/\s/g, '_')
+      if (hash.includes('device=')) {
+        hash = hash.replace(/device=.*;/, 'device=' + deviceName + ';')
+      } else {
+        hash = hash + 'device=' + deviceName + ';'
+      }
+      var url =  location.protocol + '\/\/' + location.host + '\/' + hash
+      location.assign(url)
+    }
   </script>
   <script src="jquery.min.js"></script>
 <script src="popper.min.js"></script>
