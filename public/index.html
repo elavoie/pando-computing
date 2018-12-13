@@ -1,5 +1,6 @@
 <html>
   <head>
+    <link rel="stylesheet" href="bootstrap.min.css">
     <style>
       body {
         font-family: "Helvetica Neue", helvetica, arial;
@@ -27,7 +28,19 @@
   </head>
 <body>
   <div id='visualization'></div>
+  <h1>device</h1>
+<div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">List</button>
+    <div class="dropdown-menu">
+      <a class="dropdown-item" href="#">iPhone SE</a>
+      <a class="dropdown-item" href="#">MacBook Air 2011</a>
+    </div>
+  </div>
+  <input type="text" class="form-control" aria-label="Text input with dropdown button">
+</div>
   <h1>status</h1>
+  <div id='throughput'></div>
   <p><a id='status'></a></p>
   <h1>console.log</h1>
   <ul id='console'></ul>
@@ -35,6 +48,7 @@
   <script src='volunteer.js'></script>
   <script src='bundle.js'></script>
   <script src='config.js'></script>
+
   <script>
     var secure = location.origin.indexOf('https:\/\/') > -1
 
@@ -139,5 +153,8 @@
       })
     } 
   </script>
+  <script src="jquery.min.js"></script>
+<script src="popper.min.js"></script>
+<script src="bootstrap.min.js"></script>
 </body>
 </html>

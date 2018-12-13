@@ -165,7 +165,11 @@ bundle(args.module, function (err, bundlePath) {
       path.join(__dirname, '../public/config.js'),
       path.join(__dirname, '../public/index.html'),
       path.join(__dirname, '../public/volunteer.js'),
-      path.join(__dirname, '../public/simplewebsocket.min.js')
+      path.join(__dirname, '../public/simplewebsocket.min.js'),
+      path.join(__dirname, '../node_modules/bootstrap/dist/css/bootstrap.min.css'),
+      path.join(__dirname, '../node_modules/bootstrap/dist/js/bootstrap.min.js'),
+      path.join(__dirname, '../node_modules/jquery/jquery.min.js'),
+      path.join(__dirname, '../node_modules/popper.js/dist/umd/popper.min.js')
     ], host, args.secret, function (err) {
       if (err) throw err
       log('files uploaded successfully')
