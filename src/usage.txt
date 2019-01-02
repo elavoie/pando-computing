@@ -83,3 +83,11 @@ ITEMS can be numbers, or strings:
     * Numbers are mapped to JavaScript numbers;
     * Otherwise the literal item is mapped to a JavaScript string.
 
+MONITORING (on standard error):
+
+    DEBUG='pando-computing'  
+                Debugging information about the internal behaviour of Pando.
+    DEBUG='pando-computing:monitoring'  
+                Monitoring information about participating devices.
+    DEBUG='pando-computing*'
+                All Pando-related information. 

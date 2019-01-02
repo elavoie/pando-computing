@@ -2,6 +2,7 @@
 var pull = require('pull-stream')
 var debug = require('debug')
 var log = debug('pando-computing')
+var logMonitoring = debug('pando-computing:monitoring')
 var parse = require('../src/parse.js')
 var bundle = require('../src/bundle.js')
 var electronWebRTC = require('electron-webrtc')
@@ -21,6 +22,7 @@ var mkdirp = require('mkdirp')
 var sync = require('pull-sync')
 var toPull = require('stream-to-pull-stream')
 var limit = require('pull-limit')
+var package = require('../package.json')
 
 var duplexWs = require('pull-ws')
 
@@ -67,6 +69,7 @@ bundle(args.module, function (err, bundlePath) {
   }
 
   var statusSocket = null
+  var volunteersStatus = {}
   var processor = null
   if (args.local) {
     log('local execution')
@@ -137,6 +140,28 @@ bundle(args.module, function (err, bundlePath) {
           }
         })
 
+      server._bootstrap.server.on('connection/volunteer-monitoring',
+        function (ws) {
+          log('volunteer monitoring connected over WebSocket')
+          var id = null
+          var lastReport = new Date()
+          pull(
+            duplexWs.source(ws),
+            pull.drain(function (data) {
+              var info = JSON.parse(data) 
+              id = info.id
+              var time = new Date()
+              info.lastReportInterval = time - lastReport
+              lastReport = time
+              volunteersStatus[info.id] = info
+            }, function () {
+              if (id) {
+                delete volunteersStatus[id]  
+              }
+            })
+          )
+        })
+
       getIPAddresses().forEach(function (addr) {
         console.error('Serving volunteer code at http://' + addr + ':' + args.port)
       })
@@ -155,7 +180,8 @@ bundle(args.module, function (err, bundlePath) {
         globalMonitoring: args['global-monitoring'],
         iceServers: args['ice-servers'],
         reportingInterval: args['reporting-interval'] * 1000,
-        requestTimeoutInMs: args['bootstrap-timeout'] * 1000
+        requestTimeoutInMs: args['bootstrap-timeout'] * 1000,
+        version: package.version
       }) + ' }'
     )
 
@@ -193,10 +219,15 @@ bundle(args.module, function (err, bundlePath) {
         startProcessing: !args['start-idle']
       })
 
-      processor.on('status', function (summary) {
+      processor.on('status', function (rootStatus) {
         if (statusSocket) {
           log('sending status to monitoring page')
-          statusSocket.send(JSON.stringify(summary))
+          var status = JSON.stringify({
+            root: rootStatus,
+            volunteers: volunteersStatus
+          })
+          statusSocket.send(status)
+          logMonitoring(status)
         }
       })
 

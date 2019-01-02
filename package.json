@@ -1,13 +1,13 @@
 {
   "name": "pando-computing",
-  "version": "0.16.0",
+  "version": "0.17.0",
   "description": "Distribute processing of a stream of items to volunteers on the web.",
   "bin": {
     "pando": "bin/index.js"
   },
   "main": "src/index.js",
   "scripts": {
-    "postinstall": "browserify src/browser.js -r -s volunteer -o public/volunteer.js",
+    "postinstall": "browserify src/browser.js -r -s volunteer -o public/volunteer.js; browserify src/plotly.js -r -s plotly -o root/plotly.js",
     "test": "tape test/index.js"
   },
   "repository": {
@@ -37,7 +37,8 @@
     "jquery": "^1.9.1",
     "minimist": "^1.2.0",
     "mkdirp": "^0.5.1",
-    "pando-server": "^1.4.7",
+    "pando-server": "^1.5.0",
+    "plotly.js-dist": "^1.43.0",
     "popper.js": "^1.14.3",
     "pull-lend-stream": "^1.2.1",
     "pull-limit": "^1.2.2",

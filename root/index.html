@@ -22,15 +22,160 @@
   </head>
 <body>
   <script src='./simplewebsocket.min.js'></script>
+  <script src='./plotly.js'></script>
+  <h1>volunteers</h1>
+  <div id='absolute-throughput' align='center' style='height:600px;' ></div>
+  <div id='relative-throughput' align='center'></div>
+  <div id='load' align='center' style='height:600px;' ></div>
+  <div id='historical-throughput' style="height:600px;"></div>
   <h1>root status</h1>
   <textarea cols=80 rows=30 id='root-status'></textarea>
   <h1>global status</h1>
   <div id='global-status'></div>
   <script>
+    function max(a) {
+      var max = -Infinity
+      for (var i = 0; i < a.length; ++i) {
+        if (a[i] > max) max = a[i]
+      }
+      return max
+    }
+    function min(a) {
+      var min = Infinity
+      for (var i = 0; i < a.length; ++i) {
+        if (a[i] < min) min = a[i]
+      }
+      return min
+    }
+    function sum(a) {
+      var s = 0
+      for (var i = 0; i < a.length; ++i) {
+        s += a[i]
+      }
+      return s
+    }
+
+    function updateFigures (volunteers) {
+      var throughputs = []
+      for (var id in volunteers) {
+        throughputs.push(volunteers[id])
+      }
+
+      throughputs.sort(function (a,b) { return a.throughput - b.throughput })
+
+      // Absolute Throughput
+      var instantaneous = {
+        x: throughputs.map(function (v) { return v.throughput }),
+        y: throughputs.map(function (v) { return v.deviceName + '<br>(' + v.id + ')' }),
+        name: 'Instantaneous Throughput',
+        type: 'bar',
+        orientation: 'h'
+      };
+      var layout = {
+        barmode: 'group',
+        title: 'Absolute Throughput',
+        xaxis: {
+          range: [
+            0, 
+            max(throughputs.map(function (v) { return v.throughputStats.maximum }))
+          ]
+        }
+      };
+      plotly.newPlot('absolute-throughput', [instantaneous], layout, { responsive: true });
+
+      // Relative Throughput
+      var instantaneous = {
+        values: throughputs.map(function (v) { return v.throughput }),
+        labels: throughputs.map(function (v) { return v.deviceName + '<br>(' + v.id + ')' }),
+        name: 'Instantaneous Throughput',
+        type: 'pie'
+      };
+      var layout = {
+        title: 'Relative Throughput'
+      };
+      plotly.newPlot('relative-throughput', [instantaneous], layout, { responsive: true });
+
+      // Load
+      var instantaneous = [{
+        x: throughputs.map(function (v) { return v.cpuUsage }),
+        y: throughputs.map(function (v) { return v.deviceName + '<br>(' + v.id + ')' }),
+        name: 'CPU Load',
+        type: 'bar',
+        orientation: 'h'
+      },
+      {
+        x: throughputs.map(function (v) { return v.dataTransferLoad }),
+        y: throughputs.map(function (v) { return v.deviceName + '<br>(' + v.id + ')' }),
+        name: 'Data Transfer Load',
+        type: 'bar',
+        orientation: 'h'
+      },
+      {
+        x: throughputs.map(function (v) { return 100 - v.dataTransferLoad - v.cpuUsage }),
+        y: throughputs.map(function (v) { return v.deviceName + '<br>(' + v.id + ')' }),
+        name: 'Other',
+        type: 'bar',
+        orientation: 'h'
+      }];
+      var layout = {
+        barmode: 'stack',
+        title: 'Load',
+        xaxis: {
+          range: [0, 100]
+        }
+      };
+      plotly.newPlot('load', instantaneous, layout, { responsive: true });
+
+      // Historical Throughput
+      //  Initialize new volunteers
+      for (var id in volunteers) {
+        if (!past[id]) {
+          past[id] = []
+          for (var i = 0; i < pastLength; ++i) {
+            past[id].push(0)
+          }
+        }
+      }
+      //   Add current data
+      pastLength++
+      for (var id in past) {
+        if (volunteers[id]) {
+          past[id].push(volunteers[id].throughput)
+          pastLabels[id] = volunteers[id].deviceName + ' (' + id + ')' 
+        } else {
+          past[id].push(0)
+        }
+      }
+
+      //   Draw 
+      var traces = []
+      var xs = []
+      for (var i = 0; i < pastLength; ++i) { xs.push(i+1) }
+      for (var id in past) {
+        traces.push({
+          x: xs, 
+          y: past[id],
+          name: pastLabels[id],
+          stackgroup: 'one'
+        })
+      }
+      var layout = {
+        title: 'Historical Throughput'
+      }
+      plotly.newPlot('historical-throughput', traces, layout, { responsive: true })
+
+    }
+
+    var past = {}
+    var pastLength = 0
+    var pastLabels = {}
+
     var host = location.origin.replace(/^http:\/\//, '')
     var socket = SimpleWebsocket('ws://' + host + '/root-status')
     socket.on('data', function (data) {
-      document.querySelector('#root-status').textContent = JSON.stringify(JSON.parse(data), null, '    ')
+      var info = JSON.parse(data)
+      updateFigures(info.volunteers)
+      document.querySelector('#root-status').textContent = JSON.stringify(info.root, null, '    ')
     })
     var monitoringHost = host.split(':')
     monitoringHost[1] = String(Number.parseInt(monitoringHost[1]) - 1)

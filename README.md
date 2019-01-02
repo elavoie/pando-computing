@@ -155,3 +155,82 @@ Setup VPN https://www.grid5000.fr/mediawiki/index.php/VPN
 
     host: "http://<node>.<site>.grid5000.fr:<port>"
 
+# Log Monitoring Information
+
+Pando continuously monitors the contributions of each volunteer, the real-time updates are displayed on the monitoring url. Each device sends its current status periodically, every 3 seconds by default. These status are collected by Pando, that then produce a report will all status obtained in the last period. There is therefore an inherent latency in displaying the status of participating devices.
+
+The monitoring information must be explicitly supplied by applications, which simply have to provide the number of items they have processed, as well as the time spent transferring data and performing computations. Pando handles the aggregation of multiple reports within the same reporting interval, the computation of statistics, and transparently transfer the report information. Example usage:
+
+    var pando = require('pando-computing')
+
+    // ... Application helper functions and global variables
+
+    module.exports['/pando/1.0.0'] = function (x, cb) {
+      var startTime = new Date()
+      
+      // ... Data Transfer (if applicable)
+
+      var dataTransferTime = new Date() - startTime
+
+
+      startTime = new Date()
+      var nbItems = 0
+
+      // ... Application code
+      nbItems++
+
+      var cpuTime = new Date() - startTime
+
+      pando.report({
+        cpuTime: cpuTime,
+        dataTransferTime: dataTransferTime,
+        nbItems: nbItems,
+        units: 'Gizmos'
+      })
+
+      cb(null, result) 
+    }
+
+The reporting interval can be modified with the ````--reporting-interval=I```` command-line option, with ````I```` a number that specifies the number of seconds between reports.  Note that the reporting interval used for calculations is specific to each participating device. The exact duration between reports on a given device depends on other concurrent activities.
+
+The raw information can be displayed on the standard error by using ````DEBUG='pando-computing:monitoring'````. The information can therefore be redirected to a log file in the following way:
+
+    DEBUG='pando-computing:monitoring' pando test.js 2>log.txt
+
+The information object contains the following properties:
+
+    {
+      "root": { ... } /* Internal information used for debugging */,
+      "volunteers": {
+        "5f7cfd73": { /* Volunteer information stored by ID*/
+          "id": "5f7cfd73", /* Volunteer ID */
+          "cpuTime": 3095,  /* Time (ms) spent performing CPU computations */
+          "dataTransferTime": 0, /* Time (ms) spent transferring data */
+          "nbItems": 700,        /* Number of items processed */
+          "units": "BigNums",    /* Application-specific units */
+          "deviceName": "MacBook Air 2011", /* Latest user-defined name associated with ID */
+          "throughput": 225.2977148374638,  /* Throughput = nbItems / (Reporting Interval) */
+          "throughputStats": {              /* Statistics about all previously reported throughput */
+            "average": "242.23",            
+            "standard-deviation": "39.00",  
+            "maximum": "325.88",            
+            "minimum": "166.14"
+          },
+          "cpuUsage": 99.61377534599292,    /* Cpu Usage = cpuTime / (Reporting Interval) */
+          "cpuUsageStats": {                /* Statistics about all previously reported cpu usage data */
+            "average": "89.06",
+            "standard-deviation": "14.73",
+            "maximum": "99.55",
+            "minimum": "55.69"
+          },
+          "dataTransferLoad": 0,            /* Data Transfer Load = dataTransferTime / (Reporting Interval) */
+          "dataTransferStats": {            /* Statistics about all previously reported data transfers */
+            "average": "0.00",
+            "standard-deviation": "0.00",
+            "maximum": "0.00",
+            "minimum": "0.00"
+          },
+          "lastReportInterval": 3107        /* Time (ms) since the last report was produced by Pando */
+        }
+      }
+    }
