@@ -152,6 +152,7 @@ bundle(args.module, function (err, bundlePath) {
               id = info.id
               var time = new Date()
               info.lastReportInterval = time - lastReport
+              info.timestamp = time
               lastReport = time
               volunteersStatus[info.id] = info
             }, function () {
