@@ -58,7 +58,12 @@
     function updateFigures (volunteers) {
       var throughputs = []
       for (var id in volunteers) {
-        throughputs.push(volunteers[id])
+        var performance = volunteers[id].performance
+        if (performance &&
+            performance.throughput &&
+            performance.deviceName) {
+          throughputs.push(performance)
+        }
       }
 
       throughputs.sort(function (a,b) { return a.throughput - b.throughput })
@@ -140,8 +145,8 @@
       pastLength++
       for (var id in past) {
         if (volunteers[id]) {
-          past[id].push(volunteers[id].throughput)
-          pastLabels[id] = volunteers[id].deviceName + ' (' + id + ')' 
+          past[id].push(volunteers[id].performance.throughput)
+          pastLabels[id] = volunteers[id].performance.deviceName + ' (' + id + ')'
         } else {
           past[id].push(0)
         }

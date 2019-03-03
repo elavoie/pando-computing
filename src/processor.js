@@ -19,6 +19,7 @@ function idSummary (id) {
 function createProcessor (node, opts) {
   var log = debug('pando:processor(' + processorNb++ + ')')
   var closed = false
+  var performanceStatus = {}
 
   function close (err) {
     if (closed) return
@@ -253,7 +254,9 @@ function createProcessor (node, opts) {
       nbLeafNodes: (processingEnded) ? 0 : 1,
       lendStreamState: lender._state(),
       limits: {},
-      childrenUnprocessedInputs: {}
+      childrenUnprocessedInputs: {},
+      performance: performanceStatus,
+      children: {}
     }
 
     for (var s in latestStatus) {
@@ -262,7 +265,8 @@ function createProcessor (node, opts) {
       summary.nbLeafNodes += n
       summary.childrenNb += c
       summary.limits[latestStatus[s].id] = latestStatus[s].limit
-      summary.childrenUnprocessedInputs[latestStatus[s].id] = latestStatus[s].unprocessedInputs
+      summary.childrenUnprocessedInputs[latestStatus[s].id] = latestStatus[s].unprocessedInputs,
+      summary.children[latestStatus[s].id] = latestStatus[s]
     }
 
     log('sendSummary: ' + JSON.stringify(summary))
@@ -422,6 +426,10 @@ function createProcessor (node, opts) {
   }
 
   node.lendStream = lender.lendStream.bind(lender)
+
+  node.updatePerformance = function (status) {
+    performanceStatus = status
+  }
 
   periodicReport()
   return node

@@ -69,7 +69,7 @@ bundle(args.module, function (err, bundlePath) {
   }
 
   var statusSocket = null
-  var volunteersStatus = {}
+  var wsVolunteersStatus = {}
   var processor = null
   if (args.local) {
     log('local execution')
@@ -154,10 +154,12 @@ bundle(args.module, function (err, bundlePath) {
               info.lastReportInterval = time - lastReport
               info.timestamp = time
               lastReport = time
-              volunteersStatus[info.id] = info
+              wsVolunteersStatus[info.id] = {
+                performance: info
+              }
             }, function () {
               if (id) {
-                delete volunteersStatus[id]  
+                delete wsVolunteersStatus[id]
               }
             })
           )
@@ -223,10 +225,28 @@ bundle(args.module, function (err, bundlePath) {
       processor.on('status', function (rootStatus) {
         if (statusSocket) {
           log('sending status to monitoring page')
+
+          var volunteers = {}
+
+          // Adding volunteers connected over WebSockets
+          for (var id in wsVolunteersStatus) {
+            volunteers[id] = wsVolunteersStatus[id]
+          }
+
+          // Adding volunteers connected over WebRTC, flattening tree
+          function flatten (node) {
+            for (var id in node.children) {
+              volunteers[id] = node.children[id]
+              flatten(node.children[id])
+            }
+          }
+          flatten(rootStatus)
+
           var status = JSON.stringify({
             root: rootStatus,
-            volunteers: volunteersStatus
+            volunteers: volunteers
           })
+
           statusSocket.send(status)
           logMonitoring(status)
         }

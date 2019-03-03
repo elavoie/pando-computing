@@ -138,7 +138,7 @@ setInterval(function () {
     deviceName = document.getElementById('device-name').value
     status.deviceName = deviceName
   }
-  submit(JSON.stringify(status))
+  submit(status)
 
   nbItems = 0
   cpuTime = 0
@@ -200,13 +200,16 @@ function submit (info) {
   if (!monitoringSocket && window.pando.config.protocol === 'websocket') {
     console.log('connecting')
     connect()
+
   } else if (window.pando.config.protocol === 'webrtc') {
-    console.error('monitoring volunteers with WebRTC is unsupported for now')
+    if (window.pando.processor) {
+      window.pando.processor.updatePerformance(info)
+    }
     return
   }
 
   if (monitoringSocket && socketInitialized) {
-    monitoringSocket.send(info)
+    monitoringSocket.send(JSON.stringify(info))
   }
 }
 

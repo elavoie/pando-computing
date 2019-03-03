@@ -236,7 +236,6 @@
           processor = volunteer['webrtc'](host, bundle, window.pando.config)
         }
         processor.on('status', function (summary) {
-          document.querySelector('#status').textContent = JSON.stringify(summary, null, '    ')
           if (reporter) {
             console.log('reporting status')
             reporter.send(JSON.stringify(summary))
@@ -275,7 +274,7 @@
             restart()
         }, 30 * 1000)
 
-        window.processor = processor
+        window.pando.processor = processor
       }, Math.floor(Math.random() * 1000)) // Random delay of up to 1s to avoid all nodes connecting at the same time
     }
 
