@@ -3,6 +3,7 @@ var pull = require('pull-stream')
 var debug = require('debug')
 var log = debug('pando-computing')
 var logMonitoring = debug('pando-computing:monitoring')
+var logMonitoringChildren = debug('pando-computing:monitoring:children')
 var parse = require('../src/parse.js')
 var bundle = require('../src/bundle.js')
 var electronWebRTC = require('electron-webrtc')
@@ -223,32 +224,34 @@ bundle(args.module, function (err, bundlePath) {
       })
 
       processor.on('status', function (rootStatus) {
+        var volunteers = {}
+
+        // Adding volunteers connected over WebSockets
+        for (var id in wsVolunteersStatus) {
+          volunteers[id] = wsVolunteersStatus[id]
+        }
+
+        // Adding volunteers connected over WebRTC, flattening tree
+        function flatten (node) {
+          for (var id in node.children) {
+            volunteers[id] = node.children[id]
+            flatten(node.children[id])
+          }
+        }
+        flatten(rootStatus)
+
+        var status = JSON.stringify({
+          root: rootStatus,
+          volunteers: volunteers,
+          timestamp: new Date()
+        })
+
+        logMonitoring(status)
+        logMonitoringChildren('children nb: ' + rootStatus.childrenNb + ' leaf nb: ' + rootStatus.nbLeafNodes)
+
         if (statusSocket) {
           log('sending status to monitoring page')
-
-          var volunteers = {}
-
-          // Adding volunteers connected over WebSockets
-          for (var id in wsVolunteersStatus) {
-            volunteers[id] = wsVolunteersStatus[id]
-          }
-
-          // Adding volunteers connected over WebRTC, flattening tree
-          function flatten (node) {
-            for (var id in node.children) {
-              volunteers[id] = node.children[id]
-              flatten(node.children[id])
-            }
-          }
-          flatten(rootStatus)
-
-          var status = JSON.stringify({
-            root: rootStatus,
-            volunteers: volunteers
-          })
-
           statusSocket.send(status)
-          logMonitoring(status)
         }
       })
 
