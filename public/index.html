@@ -104,6 +104,7 @@
     var restarting = false
     var connectTimeout = null
     var reporter = null
+    var processor = null
 
     function protocol () {
       if (location.hash.includes('protocol=websocket')) {
@@ -220,7 +221,7 @@
 
     function start () {
       console.log('start()')
-      var processor = null
+      processor = null
       window.pando.config.secure = secure
       setTimeout(function () {
         if (location.hash.includes('protocol=websocket')) {
