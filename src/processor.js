@@ -255,18 +255,49 @@ function createProcessor (node, opts) {
       lendStreamState: lender._state(),
       limits: {},
       childrenUnprocessedInputs: {},
-      performance: performanceStatus,
+      performance: {
+        throughput: performanceStatus.throughput || 0,
+        deviceName: performanceStatus.deviceName || '',
+        throughputStats: performanceStatus.throughputStats || { maximum: 0 },
+        cpuUsage: performanceStatus.cpuUsage || 0,
+        dataTransferLoad: performanceStatus.dataTransferLoad || 0,
+      },
       children: {}
     }
 
+    if (Object.keys(latestStatus).length > 0) {
+      // We are a coordinator
+      summary.performance.throughput = 0  
+      summary.performance.deviceName = 'WebRTC Coordinator'
+      summary.performance.throughputStats.maximum = 0
+      summary.performance.cpuUsage = 0,
+      summary.performance.dataTransferLoad = 0
+    }
+
     for (var s in latestStatus) {
-      var n = latestStatus[s].nbLeafNodes
-      var c = latestStatus[s].childrenNb
+      var child = latestStatus[s]
+      var n = child.nbLeafNodes
+      var c = child.childrenNb
       summary.nbLeafNodes += n
       summary.childrenNb += c
-      summary.limits[latestStatus[s].id] = latestStatus[s].limit
-      summary.childrenUnprocessedInputs[latestStatus[s].id] = latestStatus[s].unprocessedInputs,
-      summary.children[latestStatus[s].id] = latestStatus[s]
+      summary.limits[child.id] = child.limit
+      summary.childrenUnprocessedInputs[child.id] = child.unprocessedInputs
+      
+      // Merge in performance reports
+      if (!child.performance) continue
+      if (child.performance.throughput) summary.performance.throughput += child.performance.throughput
+      if (!child.performance.throughputStats) continue
+      if (!child.performance.throughputStats.maximum) continue
+      if (child.performance.throughputStats.maximum) {
+        var stats = summary.performance.throughputStats
+        stats.average += Number(child.performance.throughputStats.average)
+        stats['standard-deviation'] += Number(child.performance.throughputStats['standard-deviation'])
+        stats.maximum += Number(child.performance.throughputStats.maximum)
+        stats.minimum += Number(child.performance.throughputStats.minimum)
+      }
+      // Remove children info to trim status message size
+      child.children = {}
+      summary.children[child.id] = child
     }
 
     log('sendSummary: ' + JSON.stringify(summary))

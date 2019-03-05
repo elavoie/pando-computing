@@ -144,7 +144,7 @@
       //   Add current data
       pastLength++
       for (var id in past) {
-        if (volunteers[id]) {
+        if (volunteers[id] && volunteers[id].performance && volunteers[id].performance.throughput) {
           past[id].push(volunteers[id].performance.throughput)
           pastLabels[id] = volunteers[id].performance.deviceName + ' (' + id + ')'
         } else {
