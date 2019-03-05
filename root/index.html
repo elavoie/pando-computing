@@ -148,6 +148,7 @@
           past[id].push(volunteers[id].performance.throughput)
           pastLabels[id] = volunteers[id].performance.deviceName + ' (' + id + ')'
         } else {
+          pastLabels[id] = ' (' + id + ')'
           past[id].push(0)
         }
       }
