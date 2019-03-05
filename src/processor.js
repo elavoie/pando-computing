@@ -296,8 +296,7 @@ function createProcessor (node, opts) {
         stats.minimum += Number(child.performance.throughputStats.minimum)
       }
       // Remove children info to trim status message size
-      child.children = {}
-      summary.children[child.id] = child
+      summary.children[child.id] = { id: child.id, performance: child.performance }
     }
 
     log('sendSummary: ' + JSON.stringify(summary))
