@@ -132,7 +132,8 @@ function createProcessor (node, opts) {
       // when many nodes are joining at a fast rate.
       addStatus(child.id, {
         nbLeafNodes: 1,
-        childrenNb: 0
+        childrenNb: 0,
+	unprocessedInputs: 0
       })
       sendSummary()
     }
@@ -265,16 +266,6 @@ function createProcessor (node, opts) {
       children: {}
     }
 
-    if (childrenNb > 0) {
-      // We are a coordinator and not computing, our performance 
-      // report is the sum of those of our children
-      summary.performance.throughput = 0  
-      summary.performance.deviceName = 'WebRTC Coordinator'
-      summary.performance.throughputStats.maximum = 0
-      summary.performance.cpuUsage = 0,
-      summary.performance.dataTransferLoad = 0
-    }
-
     for (var s in latestStatus) {
       var child = latestStatus[s]
       var n = child.nbLeafNodes
@@ -283,7 +274,7 @@ function createProcessor (node, opts) {
       summary.childrenNb += c
       summary.limits[child.id] = child.limit
       summary.childrenUnprocessedInputs[child.id] = child.unprocessedInputs
-      
+
       // Merge in performance reports
       if (child.performance && child.performance.throughput) {
         summary.performance.throughput += child.performance.throughput
@@ -296,11 +287,8 @@ function createProcessor (node, opts) {
         stats.maximum += Number(child.performance.throughputStats.maximum)
         stats.minimum += Number(child.performance.throughputStats.minimum)
       }
-      // Remove children info to trim status message size
-      summary.children[child.id] = { 
-        id: child.id, 
-        performance: child.performance 
-      }
+      
+      summary.children[child.id] = { id: child.id, performance: child.performance }
     }
 
     log('sendSummary: ' + JSON.stringify(summary))
@@ -351,7 +339,6 @@ function createProcessor (node, opts) {
         limitedChannel.updateLimit(status.limit)
       }
       addStatus(child.id, status)
-      // TODO: stallCheck(child)
     })
     child.on('close', function () {
       log('child(' + idSummary(child.id) + ') control channel closed')
