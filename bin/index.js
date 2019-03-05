@@ -231,14 +231,10 @@ bundle(args.module, function (err, bundlePath) {
           volunteers[id] = wsVolunteersStatus[id]
         }
 
-        // Adding volunteers connected over WebRTC, flattening tree
-        function flatten (node) {
-          for (var id in node.children) {
-            volunteers[id] = node.children[id]
-            flatten(node.children[id])
-          }
+        // Adding volunteers connected over WebRTC
+        for (var id in rootStatus.children) {
+          volunteers[id] = rootStatus.children[id]
         }
-        flatten(rootStatus)
 
         var status = JSON.stringify({
           root: rootStatus,
