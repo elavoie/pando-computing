@@ -265,7 +265,7 @@ function createProcessor (node, opts) {
       children: {}
     }
 
-    if (Object.keys(latestStatus).length > 0) {
+    if (childrenNb > 0) {
       // We are a coordinator
       summary.performance.throughput = 0  
       summary.performance.deviceName = 'WebRTC Coordinator'
