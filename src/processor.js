@@ -266,7 +266,8 @@ function createProcessor (node, opts) {
     }
 
     if (childrenNb > 0) {
-      // We are a coordinator
+      // We are a coordinator and not computing, our performance 
+      // report is the sum of those of our children
       summary.performance.throughput = 0  
       summary.performance.deviceName = 'WebRTC Coordinator'
       summary.performance.throughputStats.maximum = 0
@@ -284,11 +285,11 @@ function createProcessor (node, opts) {
       summary.childrenUnprocessedInputs[child.id] = child.unprocessedInputs
       
       // Merge in performance reports
-      if (!child.performance) continue
-      if (child.performance.throughput) summary.performance.throughput += child.performance.throughput
-      if (!child.performance.throughputStats) continue
-      if (!child.performance.throughputStats.maximum) continue
-      if (child.performance.throughputStats.maximum) {
+      if (child.performance && child.performance.throughput) {
+        summary.performance.throughput += child.performance.throughput
+      }
+      if (child.performance && 
+          child.performance.throughputStats) {
         var stats = summary.performance.throughputStats
         stats.average += Number(child.performance.throughputStats.average)
         stats['standard-deviation'] += Number(child.performance.throughputStats['standard-deviation'])
@@ -296,7 +297,10 @@ function createProcessor (node, opts) {
         stats.minimum += Number(child.performance.throughputStats.minimum)
       }
       // Remove children info to trim status message size
-      summary.children[child.id] = { id: child.id, performance: child.performance }
+      summary.children[child.id] = { 
+        id: child.id, 
+        performance: child.performance 
+      }
     }
 
     log('sendSummary: ' + JSON.stringify(summary))
