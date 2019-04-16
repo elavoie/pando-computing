@@ -1,6 +1,6 @@
 {
   "name": "pando-computing",
-  "version": "0.17.11",
+  "version": "0.17.12",
   "description": "Distribute processing of a stream of items to volunteers on the web.",
   "bin": {
     "pando": "bin/index.js"
@@ -39,7 +39,6 @@
     "pando-server": "^1.5.4",
     "plotly.js-dist": "1.43.0",
     "popper.js": "1.14.3",
-    "postinstall": "^0.4.2",
     "pull-lend-stream": "^1.2.2",
     "pull-limit": "^1.2.2",
     "pull-probe": "^1.0.2",
