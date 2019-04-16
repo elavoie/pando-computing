@@ -19,10 +19,13 @@
     </style>
 
     <script>
+      localStorage.debug='webrtc-bootstrap*,simple-peer'
+      _log = console.log.bind(console)
       console.log = function (s) {
         var li = document.createElement('li');
         li.innerHTML = s;
         document.querySelector('#console').appendChild(li);
+        _log(s)
       }
     </script>
   </head>

@@ -122,7 +122,7 @@ bundle(args.module, function (err, bundlePath) {
       })
       host = 'localhost:' + args.port
 
-      server._bootstrap.server.on('connection/volunteer',
+      server._bootstrap.upgrade('/volunteer',
         function (ws) {
           if (processor) {
             log('volunteer connected over WebSocket')
@@ -141,7 +141,7 @@ bundle(args.module, function (err, bundlePath) {
           }
         })
 
-      server._bootstrap.server.on('connection/volunteer-monitoring',
+      server._bootstrap.upgrade('/volunteer-monitoring',
         function (ws) {
           log('volunteer monitoring connected over WebSocket')
           var id = null

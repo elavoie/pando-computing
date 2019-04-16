@@ -6,15 +6,10 @@ var pull = require('pull-stream')
 var probe = require('pull-probe')
 var debug = require('debug')
 var log = debug('test')
+var wrtc = require('wrtc')
 
 module.exports = function run (valueNb, workerNb, degree, seed) {
   return function (t) {
-    var wrtc = require('electron-webrtc')()
-    wrtc.on('error', function (err, source) {
-      console.log(err)
-      console.log(source)
-    })
-
     valueNb = valueNb || 24 // Number of values to compute
     workerNb = workerNb || 6 // Number of workers to use
     degree = degree || 2 // Maximum number of children per node
@@ -83,8 +78,6 @@ module.exports = function run (valueNb, workerNb, degree, seed) {
             workers.forEach(function (w) {
               w.close()
             })
-            console.log('closing wrtc')
-            wrtc.close()
           } catch (e) {
             console.log(e)
             console.log(e.message)

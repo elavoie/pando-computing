@@ -1,6 +1,6 @@
 {
   "name": "pando-computing",
-  "version": "0.17.9",
+  "version": "0.17.11",
   "description": "Distribute processing of a stream of items to volunteers on the web.",
   "bin": {
     "pando": "bin/index.js"
@@ -30,35 +30,36 @@
     "async.util.setimmediate": "^0.5.2",
     "bootstrap": "4.1.3",
     "browserify": "^13.3.0",
-    "debug": "^2.6.8",
-    "electron": "^1.7.3",
+    "debug": "^2.6.9",
     "electron-webrtc": "^0.3.0",
-    "express": "^4.15.3",
+    "express": "^4.16.4",
     "jquery": "1.9.1",
     "minimist": "^1.2.0",
     "mkdirp": "^0.5.1",
-    "pando-server": "^1.5.0",
+    "pando-server": "^1.5.4",
     "plotly.js-dist": "1.43.0",
     "popper.js": "1.14.3",
-    "pull-lend-stream": "^1.2.1",
+    "postinstall": "^0.4.2",
+    "pull-lend-stream": "^1.2.2",
     "pull-limit": "^1.2.2",
     "pull-probe": "^1.0.2",
-    "pull-stream": "^3.6.0",
+    "pull-stream": "^3.6.9",
     "pull-stream-function-to-object": "^1.0.1",
     "pull-sync": "^2.0.5",
     "pull-ws": "github:elavoie/pull-ws",
-    "request": "^2.79.0",
-    "simple-peer": "^6.2.1",
+    "request": "^2.88.0",
+    "simple-peer": "^6.4.4",
     "simple-updatable-website": "^1.1.3",
-    "simple-websocket": "^4.1.0",
-    "split": "^1.0.0",
-    "stream-to-pull-stream": "^1.7.2",
-    "webrtc-bootstrap": "^3.1.1",
-    "webrtc-tree-overlay": "^1.0.10",
-    "ws": "^1.1.1"
+    "simple-websocket": "^7.2.0",
+    "split": "^1.0.1",
+    "stream-to-pull-stream": "^1.7.3",
+    "webrtc-bootstrap": "^4.4.1",
+    "webrtc-tree-overlay": "^1.0.13",
+    "ws": "^1.1.5"
   },
   "devDependencies": {
-    "bignumber.js": "^4.0.1",
-    "tape": "^4.6.3"
+    "bignumber.js": "^4.1.0",
+    "tape": "^4.10.1",
+    "wrtc": "^0.3.7"
   }
 }
