@@ -272,6 +272,8 @@ function createProcessor (node, opts) {
       children: {}
     }
 
+    var time = new Date()
+    var lastReportInterval = time - lastReportTime
     for (var s in latestStatus) {
       var child = latestStatus[s]
       var n = child.nbLeafNodes
@@ -315,15 +317,14 @@ function createProcessor (node, opts) {
         stats.minimum += Number(child.performance.dataTransferStats.minimum)
       }
       
-      var time = new Date()
       summary.children[child.id] = { 
         id: child.id, 
         timestamp: time,
-        lastReportInterval: time - lastReportTime,
+        lastReportInterval: lastReportInterval,
         performance: child.performance 
       }
-      lastReportTime = time
     }
+    lastReportTime = time
 
     log('sendSummary: ' + JSON.stringify(summary))
     node.emit('status', summary)
