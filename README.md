@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/elavoie/pando-computing.svg?branch=master)](https://travis-ci.org/elavoie/pando-computing)
-
 # pando-computing
 
 Pando is a decentralized computing commandline tool that enables a stream of
