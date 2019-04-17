@@ -118,7 +118,7 @@ module.exports = function (argv) {
   }
 
   // Provide the iceServers in the correct format
-  argv['ice-servers'] = argv['ice-servers'].split(',').map(function (url) { return { url: url } })
+  argv['ice-servers'] = argv['ice-servers'].split(',').map(function (url) { return { urls: url } })
 
   if (argv.host && argv.host.indexOf('/') !== -1) {
     log('removing trailing slashes from host: ' + argv.host)
