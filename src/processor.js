@@ -240,6 +240,7 @@ function createProcessor (node, opts) {
   var latestStatus = {}
   var childrenNb = 0
   var children = {}
+  var lastReportTime = new Date()
 
   function addStatus (id, status) {
     if (typeof id === 'undefined') return
@@ -257,11 +258,16 @@ function createProcessor (node, opts) {
       limits: {},
       childrenUnprocessedInputs: {},
       performance: {
-        throughput: performanceStatus.throughput || 0,
+        id: node.id,
         deviceName: performanceStatus.deviceName || '',
-        throughputStats: performanceStatus.throughputStats || { maximum: 0 },
+        nbItems: performanceStatus.nbItems || 0,
+        units: performanceStatus.units || 'items',
+        throughput: performanceStatus.throughput || 0,
+        throughputStats: performanceStatus.throughputStats || { minimum: 0, average: 0, maximum: 0, 'standard-deviation': 0 },
         cpuUsage: performanceStatus.cpuUsage || 0,
+        cpuUsageStats: performanceStatus.cpuUsageStats || { minimum: 0, average: 0, maximum: 0, 'standard-deviation': 0 },
         dataTransferLoad: performanceStatus.dataTransferLoad || 0,
+        dataTransferStats: performanceStatus.dataTransferStats || { minimum: 0, average: 0, maximum: 0, 'standard-deviation': 0 }
       },
       children: {}
     }
@@ -279,6 +285,9 @@ function createProcessor (node, opts) {
       if (child.performance && child.performance.throughput) {
         summary.performance.throughput += child.performance.throughput
       }
+      if (child.performance && child.performance.nbItems) {
+        summary.performance.nbItems += child.performance.nbItems
+      }
       if (child.performance && 
           child.performance.throughputStats) {
         var stats = summary.performance.throughputStats
@@ -287,8 +296,33 @@ function createProcessor (node, opts) {
         stats.maximum += Number(child.performance.throughputStats.maximum)
         stats.minimum += Number(child.performance.throughputStats.minimum)
       }
+
+      if (child.performance && 
+          child.performance.cpuUsageStats) {
+        var stats = summary.performance.cpuUsageStats
+        stats.average += Number(child.performance.cpuUsageStats.average)
+        stats['standard-deviation'] += Number(child.performance.cpuUsageStats['standard-deviation'])
+        stats.maximum += Number(child.performance.cpuUsageStats.maximum)
+        stats.minimum += Number(child.performance.cpuUsageStats.minimum)
+      }
+
+      if (child.performance && 
+          child.performance.dataTransferStats) {
+        var stats = summary.performance.dataTransferStats
+        stats.average += Number(child.performance.dataTransferStats.average)
+        stats['standard-deviation'] += Number(child.performance.dataTransferStats['standard-deviation'])
+        stats.maximum += Number(child.performance.dataTransferStats.maximum)
+        stats.minimum += Number(child.performance.dataTransferStats.minimum)
+      }
       
-      summary.children[child.id] = { id: child.id, performance: child.performance }
+      var time = new Date()
+      summary.children[child.id] = { 
+        id: child.id, 
+        timestamp: time,
+        lastReportInterval: time - lastReportTime,
+        performance: child.performance 
+      }
+      lastReportTime = time
     }
 
     log('sendSummary: ' + JSON.stringify(summary))

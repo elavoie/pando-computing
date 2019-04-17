@@ -145,19 +145,20 @@ bundle(args.module, function (err, bundlePath) {
         function (ws) {
           log('volunteer monitoring connected over WebSocket')
           var id = null
-          var lastReport = new Date()
+          var lastReportTime = new Date()
           pull(
             duplexWs.source(ws),
             pull.drain(function (data) {
               var info = JSON.parse(data) 
               id = info.id
               var time = new Date()
-              info.lastReportInterval = time - lastReport
-              info.timestamp = time
-              lastReport = time
               wsVolunteersStatus[info.id] = {
+                id: info.id,
+                timestamp: time,
+                lastReportInterval: time - lastReportTime,
                 performance: info
               }
+              lastReportTime = time
             }, function () {
               if (id) {
                 delete wsVolunteersStatus[id]
