@@ -15,6 +15,10 @@ assumed that it is correct with regard to the code provided. No attempt is made
 to invalidate results produced by malicious volunteers. Use at your own risks.
 
 More details and worked out examples are available in the [handbook](https://github.com/elavoie/pando-handbook).
+Detailed explanations of the motivation, design, and experiments are available in the following publications:
+* [Personal Volunteer Computing](https://arxiv.org/abs/1804.01482)
+* [Pando: Personal Volunteer Computing in Browsers](https://arxiv.org/abs/1803.08426)
+* [Genet: A Quickly Scalable Fat-Tree Overlay for Personal Volunteer Computing using WebRTC](https://arxiv.org/abs/1904.11402) 
 
 # Install 
 
