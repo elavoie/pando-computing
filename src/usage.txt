@@ -21,9 +21,10 @@ OPTIONS (default?):
                 processes items one-by-one.  Useful for testing the module
                 on a few sample items.
 
-    --start-idle (false, Boolean)
+    --start-idle (true, Boolean)
                 Whether items should be processed while waiting for
-                volunteers to connect. Set to true for idle waiting.
+                volunteers to connect. Set to false for to compute while waiting
+                for new volunteers.
 
     --stdin     (false, Boolean)
                 Read items from standard input instead, one item per line

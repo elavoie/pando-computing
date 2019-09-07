@@ -55,7 +55,7 @@ var options = {
     'bootstrap-timeout': config['bootstrap-timeout'] || 60, // seconds
     'global-monitoring': config['global-monitoring'] || false,
     'reporting-interval': 3, // seconds
-    'start-idle': config['start-idle'] || false,
+    'start-idle': config['start-idle'] || true,
     degree: config['degree'] || 10,
     headless: config['headless'] || false,
     help: false,
