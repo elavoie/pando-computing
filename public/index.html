@@ -115,7 +115,7 @@
       } else if (location.hash.includes('protocol=webrtc')) {
         return 'protocol=webrtc'
       } else {
-        return ''
+        return 'protocol=websocket'
       }
     }
 
@@ -227,17 +227,15 @@
       processor = null
       window.pando.config.secure = secure
       setTimeout(function () {
-        if (location.hash.includes('protocol=websocket')) {
+        if (location.hash.includes('protocol=webrtc')) {
+          console.log('connecting over WebRTC')
+          window.pando.config.protocol = 'webrtc'
+          processor = volunteer['webrtc'](host, bundle, window.pando.config)
+        } else {
           console.log('connecting over WebSocket')
           var protocol = secure ? 'wss://' : 'ws://'
           window.pando.config.protocol = 'websocket'
           processor = volunteer['websocket'](protocol + host + '/volunteer', bundle)
-        } else if (location.hash.includes('protocol=webrtc')) {
-          window.pando.config.protocol = 'webrtc'
-          processor = volunteer['webrtc'](host, bundle, window.pando.config)
-        } else {
-          window.pando.config.protocol = 'webrtc'
-          processor = volunteer['webrtc'](host, bundle, window.pando.config)
         }
         processor.on('status', function (summary) {
           if (reporter) {
