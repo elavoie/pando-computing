@@ -214,7 +214,7 @@ The information object contains the following properties:
       }
     }
     
-## Documentation and Publication
+## Documentation and Publications
  
 More detail and worked out examples are available in the [handbook](https://github.com/elavoie/pando-handbook).
 Detailed explanations of the motivation, design, and experiments are available in the following publications:
