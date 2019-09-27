@@ -54,9 +54,9 @@ module.exports['/pando/1.0.0'] = function (x, cb) {
 
 The module can use libraries that have been previously been installed by npm. On startup Pando transparently creates a bundle with [browserify](https://github.com/browserify/browserify) and serves it to volunteering browsers.
 
-# Other Installation Methods
+## Other Installation Methods
 
-## NPM
+### NPM
 
 You can alternatively install Pando from NPM:
 
@@ -67,7 +67,7 @@ You can then invoke Pando globally:
     pando --help
     
     
-## Other Common Examples
+## Common Usage Examples
 
 ### Read from the standard input and process the output
 
@@ -91,7 +91,7 @@ Then open ````https://webrtc-connection-testing.herokuapp.com/```` in the browse
 
 At the time of writing only Brave, which uses an older version of Chromium, works. The latest versions of Firefox and Chrome may fail to establish a connection.
 
-### Internet Connections using WebRTC and a Public Server  
+### Connect Internet Volunteers using WebRTC and a Public Server  
 
 To enable connections with volunteers outside of a local network, you need a [pando-server](https://github.com/elavoie/pando-server) with a publicly accessible address:
 
@@ -118,14 +118,20 @@ You can alternatively download a pre-built image from Docker:
    docker pull elavoie/pando-middleware19
 ````
 
-Once the image is ready you can run one of the examples from inside the image. The following example first runs the image in interactive mode (````-it````), maps the internal ports 5000 (for serving volunteer code), 5001 (for monitoring performance), and 8080 (for serving files in the photo-batch processing example), and open a bash prompt. Then it executes the raytracer example:
+Once the image is ready you can run one of the examples from inside the image. The following example first runs the image in interactive mode (````-it````), maps the internal ports (````-p````) 5000 (for serving volunteer code), 5001 (for monitoring performance), and 8080 (for serving files in the photo-batch processing example), and open a bash prompt. Then it executes the raytracer example:
 
 ````
     docker run -it -p 5000:5000 -p 5001:5001 -p 8080:8080 elavoie/pando-middleware19 /bin/bash
     ./raytracer
 ````
 
-You can connect a volunteer to the instance of Pando running inside docker by opening a browser with ````http://<ip addr of docker host>:5000````.
+You can connect a volunteer to the instance of Pando running inside docker by opening a browser with ````http://<ip addr of docker host>:5000````. 
+
+Other example applications are available in the same directory:
+
+````
+    ls .
+````
 
 
 ## Log Monitoring Information
