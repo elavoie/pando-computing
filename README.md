@@ -14,13 +14,49 @@ However, volunteers should be collaborative. If they produce a result it is
 assumed that it is correct with regard to the code provided. No attempt is made
 to invalidate results produced by malicious volunteers. Use at your own risks.
 
-More detail and worked out examples are available in the [handbook](https://github.com/elavoie/pando-handbook).
-Detailed explanations of the motivation, design, and experiments are available in the following publications:
-* [Personal Volunteer Computing](https://arxiv.org/abs/1804.01482)
-* [Pando: Personal Volunteer Computing in Browsers](https://arxiv.org/abs/1803.08426)
-* [Genet: A Quickly Scalable Fat-Tree Overlay for Personal Volunteer Computing using WebRTC](https://arxiv.org/abs/1904.11402) 
+# Quick Start
 
-# Install 
+Install Pando from sources:
+
+    git clone https://github.com/elavoie/pando-computing
+    cd pando-computing
+    npm install
+    
+Start Pando with an example that squares the list of inputs, passed as arguments:
+
+    cd pando-computing
+    bin/index.js examples/square.js 1 2 3 4 5 6 7 8 9 10
+    
+Should print:
+
+    Serving volunteer code at http://<your ip addr>:5000
+    Serving monitoring page at http://<your ip addr>:5001
+    
+In the browser of a device on the same local network, open:
+
+    http://<your ip addr>:5000
+
+Type a device name, then click save. Once connected, you should see the results appear on the standard output at a rate of one per second:
+
+    1
+    4
+    ...
+
+Your installation works! You can modify ````examples/square.js```` to use a different processing function. The processing function passed to Pando is a JavaScript module that exports the ````/pando/1.0.0```` (the first version of the function procotol). That function takes a string value ````x```` as input, corresponding to the string value of one of the arguments on the commandline, and a callback ````cb(err, res)````, to either produce an error ````err```` or return a new result ````res````. Here is an example that doubles the input:
+
+````
+module.exports['/pando/1.0.0'] = function (x, cb) {
+    x = Number.parseInt(JSON.parse(x))
+    var r = x + x
+    cb(null, String(r))
+}
+````
+
+The module can use libraries that have been previously been installed by npm. On startup Pando transparently creates a bundle with [browserify](https://github.com/browserify/browserify) and serves it to volunteering browsers.
+
+# Installation
+
+You can alternatively install 
 
     npm install -g pando-computing
 
@@ -236,3 +272,12 @@ The information object contains the following properties:
         }
       }
     }
+    
+# Documentation and Publication
+ 
+More detail and worked out examples are available in the [handbook](https://github.com/elavoie/pando-handbook).
+Detailed explanations of the motivation, design, and experiments are available in the following publications:
+* [Personal Volunteer Computing](https://arxiv.org/abs/1804.01482)
+* [Pando: Personal Volunteer Computing in Browsers](https://arxiv.org/abs/1803.08426)
+* [Genet: A Quickly Scalable Fat-Tree Overlay for Personal Volunteer Computing using WebRTC](https://arxiv.org/abs/1904.11402) 
+
