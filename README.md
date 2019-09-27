@@ -1,4 +1,4 @@
-# pando-computing
+# Pando
 
 Pando is a decentralized computing commandline tool that enables a stream of
 values to be processed collaboratively by volunteers on the web.
@@ -14,7 +14,7 @@ However, volunteers should be collaborative. If they produce a result it is
 assumed that it is correct with regard to the code provided. No attempt is made
 to invalidate results produced by malicious volunteers. Use at your own risks.
 
-# Quick Start
+## Quick Start
 
 Install Pando from sources:
 
@@ -54,148 +54,83 @@ module.exports['/pando/1.0.0'] = function (x, cb) {
 
 The module can use libraries that have been previously been installed by npm. On startup Pando transparently creates a bundle with [browserify](https://github.com/browserify/browserify) and serves it to volunteering browsers.
 
-# Installation
+# Other Installation Methods
 
-You can alternatively install 
+## NPM
+
+You can alternatively install Pando from NPM:
 
     npm install -g pando-computing
+    
+You can then invoke Pando globally:
 
-# Example
+    pando --help
+    
+    
+## Other Common Examples
 
-    git clone git@github.com:elavoie/pando-computing
-    cd pando-computing
-    npm install        # To install examples/square.js dependencies
-    pando examples/square.js 1 2 3 4 5 6 7 8 9 10
-    open http://localhost:5000
+### Read from the standard input and process the output
 
-## Infinite stream
+Pando can be integrated in a Unix pipeline. The following example implements a map-reduce job, where inputs are squared in parallel in browsers, then the sum of numbers is done locally:
 
-    cd pando-computing
-    test/count | pando examples/square.js --stdin
+    seq 100 | pando examples/square.js --stdin | awk '{s+=$1} END {print s}'
+    
+### Connect Volunteers over WebRTC
 
-## Separate server
+In browsers, pass the ````#protocol=webrtc;```` option after the url. For example, open ````http://<your ip addr>:5000/#protocol=webrtc;````. Make sure to use the ````#```` at the beginning and the option separator ````;```` for proper parsing.
+
+Note that WebRTC connections are slower to establish and rather finicky, they often fail with hard-to-debug causes. You can first ensure that a connection can indeed be made by using [webrtc-connection-testing](https://github.com/elavoie/webrtc-connection-testing):
+
+````
+git clone git@github.com:elavoie/webrtc-connection-testing
+npm install
+bin/participant https://webrtc-connection-testing.herokuapp.com/
+````
+
+Then open ````https://webrtc-connection-testing.herokuapp.com/```` in the browser you intend to use. If a line appears between ````electron-wrtc```` (the participant you started on the commandline, with an identical setup to Pando) and the browser you are testing, then it should work with Pando as well.
+
+At the time of writing only Brave, which uses an older version of Chromium, works. The latest versions of Firefox and Chrome may fail to establish a connection.
+
+### Internet Connections using WebRTC and a Public Server  
+
+To enable connections with volunteers outside of a local network, you need a [pando-server](https://github.com/elavoie/pando-server) with a publicly accessible address:
 
     npm install -g pando-server
-    pando-server
+    pando-server (On your Public Server)
 
     # Separate process
-    test/count | pando examples/square.js --host='localhost:5000'
+    test/count | pando examples/square.js --host='<remote server addr>' --secret='<secret>'
+    
+We successfully tested with Heroku, the installation instruction can be found [here](https://github.com/elavoie/pando-server#launch-on-heroku).
 
-# Usage
+## Using a Pre-configured Docker Image with Built-in Examples
 
-    usage: pando MODULE [OPTIONS] ITEM1, ITEM2, ...
-
-    MODULE is the file path to a Node.js module. The module must export an object
-    with a property '/pando/1.0.0'. This property must be a function that takes a
-    single value and a callback as arguments.
-
-    OPTIONS (default?):
-        --headless  (false, Boolean)
-                    Start electron-wrtc without access to a graphical environment
-
-        --host=HOST (true, HOST='localhost', String)
-                    Hostname of the bootstrap server. Can be supplied as
-                    'hostname' or 'ipaddr:port'. If `--host` is not provided
-                    (HOST=null), the pando-server is started within the same
-                    process.
-
-        --port=PORT (true, PORT=5000, Number) 
-                    Port used by pando-server when HOST=null.
-
-        --local     (false, Boolean)
-                    Does not open to volunteers but loads the module, and directly
-                    processes items one-by-one.  Useful for testing the module
-                    on a few sample items.
-
-        --start-idle (false, Boolean)
-                    Whether items should be processed while waiting for
-                    volunteers to connect. Set to true for idle waiting.
-
-        --stdin     (false, Boolean)
-                    Read items from standard input instead, one item per line
-
-        --secret=S  (true, S='INSECURE-SECRET', String)
-                    Alphanumeric string used to connect to the bootstrap server
-                    as root (and only root). Should be the same as the one
-                    supplied to pando-server.  Does not matter when not
-                    communicating with a public server.
-
-    ADVANCED (used for testing, development, and optimization):
-
-        --bootstrap-timeout=T (true, T=60, Number)
-                    Maximum time allowed for a new volunteer to establish a
-                    successful connection (in seconds).
-
-        --degree=D  (true, D=10, Number)
-                    Maximum degree of the root (started by this command) and
-                    each other connected volunteer. When new volunteers request
-                    a connection to a node that has reached the maximum degree,
-                    the connection is delegated to one of its children.
-
-        --global-monitoring (false)
-                    Each volunteer maintains an additional WebSocket connection to
-                    the pando-server to report its status. All statuses are
-                    combined and reported as additional information on the
-                    monitoring page.
-
-        --reporting-interval=I (true, I=3, Number)
-                    Interval in seconds between the status updates given by nodes.
-
-        --seed=SEED (true, SEED=RandomInt, Number) 
-                    Seed used to assign identifiers to the node channels with
-                    which they communicate. Providing an integer makes the identifiers
-                    deterministic and replicable.
-
-    ITEMS can be numbers, or strings:
-        * Numbers are mapped to JavaScript numbers;
-        * Otherwise the literal item is mapped to a JavaScript string.
-
-# Enable volunteers to connect from a public http server (on Heroku)
-
-See the [pando-server](https://github.com/elavoie/pando-server) repository
-for information on how to deploy to heroku.
-
-# Storing commonly used arguments in a config.json file
-
-You may create a 'config.json' in the '$HOME/.pando' directory to avoid
-typing `--host=... --secret=...`, when invoking pando on the commandline. It should be
-a valid json file. Currently the following options are supported:
+The repository contains a Dockerfile that builds an image with a number of examples to replicate our [published experiments](https://arxiv.org/abs/1803.08426). To build the image do:
 
 ````
-    {
-        "seed": <number to initialize the pando server when the public server is not used>,
-        "secret": "alphanumeric string for connecting as root",
-        "host": "pando-server hostname or ipaddr:port",
-        "
-    }
+  cd pando-computing
+  docker build -t elavoie/pando-middleware19 .
 ````
 
-# Perform experiments on Grid5000
+You can alternatively download a pre-built image from Docker:
 
-## Connect to Grid5000
+````
+   docker pull elavoie/pando-middleware19
+````
 
-    ssh <username>@access.grid5000.fr
-    oarsub -I
+Once the image is ready you can run one of the examples from inside the image. The following example first runs the image in interactive mode (````-it````), maps the internal ports 5000 (for serving volunteer code), 5001 (for monitoring performance), and 8080 (for serving files in the photo-batch processing example), and open a bash prompt. Then it executes the raytracer example:
 
-## Setup Pando
+````
+    docker run -it -p 5000:5000 -p 5001:5001 -p 8080:8080 elavoie/pando-middleware19 /bin/bash
+    ./raytracer
+````
 
-    <install pando-computing>
-    <install pando-server>
-    pando-server
-    # Separate process
-    pando
+You can connect a volunteer to the instance of Pando running inside docker by opening a browser with ````http://<ip addr of docker host>:5000````.
 
-## Connecting to Grid5000 with VPN
 
-Setup VPN https://www.grid5000.fr/mediawiki/index.php/VPN
+## Log Monitoring Information
 
-## Setup host in $HOME/.pando/config.json
-
-    host: "http://<node>.<site>.grid5000.fr:<port>"
-
-# Log Monitoring Information
-
-Pando continuously monitors the contributions of each volunteer, the real-time updates are displayed on the monitoring url. Each device sends its current status periodically, every 3 seconds by default. These status are collected by Pando, that then produce a report will all status obtained in the last period. There is therefore an inherent latency in displaying the status of participating devices.
+Pando continuously monitors the contributions of each volunteer, the real-time updates are displayed on the monitoring url (````http://<ip addr>:5001````). Each device sends its current status periodically, every 3 seconds by default. These status are collected by Pando, that then produce a report will all status obtained in the last period. There is therefore an inherent latency in displaying the status of participating devices.
 
 The monitoring information must be explicitly supplied by applications, which simply have to provide the number of items they have processed, as well as the time spent transferring data and performing computations. Pando handles the aggregation of multiple reports within the same reporting interval, the computation of statistics, and transparently transfer the report information. Example usage:
 
@@ -273,7 +208,7 @@ The information object contains the following properties:
       }
     }
     
-# Documentation and Publication
+## Documentation and Publication
  
 More detail and worked out examples are available in the [handbook](https://github.com/elavoie/pando-handbook).
 Detailed explanations of the motivation, design, and experiments are available in the following publications:
