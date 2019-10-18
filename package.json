@@ -1,6 +1,6 @@
 {
   "name": "pando-computing",
-  "version": "0.17.16",
+  "version": "0.18.0",
   "description": "Distribute processing of a stream of items to volunteers on the web.",
   "bin": {
     "pando": "bin/index.js"

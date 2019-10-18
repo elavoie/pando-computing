@@ -68,6 +68,11 @@ ADVANCED (used for testing, development, and optimization):
                 combined and reported as additional information on the
                 monitoring page.
 
+    --heartbeat=HB (HB=30000, Number)
+                Heartbeat interval in milliseconds to validate a connection is
+                still valid. A connection error, such as a sudden wifi disconnection, 
+                can therefore be detected in at most 2*HB.
+
     --ice-servers=URLS (true, URLS='stun:stun.l.google.com:19302', String)
                 Comma-separated list of ice servers used to establish the WebRTC
                 connections.

@@ -58,6 +58,7 @@ var options = {
     'start-idle': config['start-idle'] || true,
     degree: config['degree'] || 10,
     headless: config['headless'] || false,
+    heartbeat: config['heartbeat'] || 30000,
     help: false,
     host: config['host'] || null,
     'ice-servers': config['iceServers'] || 'stun:stun.l.google.com:19302',

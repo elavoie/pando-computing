@@ -4,6 +4,7 @@ var debug = require('debug')
 var log = debug('pando-computing')
 var logMonitoring = debug('pando-computing:monitoring')
 var logMonitoringChildren = debug('pando-computing:monitoring:children')
+var logHeartbeat = debug('pando-computing:heartbeat')
 var parse = require('../src/parse.js')
 var bundle = require('../src/bundle.js')
 var electronWebRTC = require('electron-webrtc')
@@ -126,6 +127,29 @@ bundle(args.module, function (err, bundlePath) {
         function (ws) {
           if (processor) {
             log('volunteer connected over WebSocket')
+
+            ws.isAlive = true
+            var heartbeat = setInterval(function ping() {
+              if (ws.isAlive === false) {
+                logHeartbeat('ws: volunteer connection lost')
+                return ws.terminate()
+              }
+              ws.isAlive = false
+              ws.ping(function () {})
+            }, args.heartbeat)
+            ws.addEventListener('close', function () {
+              clearInterval(heartbeat)
+              heartbeat = null   
+            })
+            ws.addEventListener('error', function () {
+              clearInterval(heartbeat)
+              heartbeat = null   
+            })
+            ws.addEventListener('pong', function () {
+              logHeartbeat('ws: volunteer connection pong')
+              ws.isAlive = true
+            })
+
             processor.lendStream(function (err, stream) {
               if (err) return log('error lender sub-stream to volunteer: ' + err)
               log('lending sub-stream to volunteer')
@@ -144,6 +168,29 @@ bundle(args.module, function (err, bundlePath) {
       server._bootstrap.upgrade('/volunteer-monitoring',
         function (ws) {
           log('volunteer monitoring connected over WebSocket')
+
+          ws.isAlive = true
+          var heartbeat = setInterval(function ping() {
+              if (ws.isAlive === false) {
+                logHeartbeat('ws: volunteer monitoring connection lost')
+                return ws.terminate()
+              }
+              ws.isAlive = false
+              ws.ping(function () {})
+          }, args.heartbeat)
+          ws.addEventListener('close', function () {
+            clearInterval(heartbeat)
+            heartbeat = null   
+          })
+          ws.addEventListener('error', function () {
+            clearInterval(heartbeat)
+            heartbeat = null   
+          })
+          ws.addEventListener('pong', function () {
+            logHeartbeat('ws: volunteer monitoring pong')
+            ws.isAlive = true
+          })
+
           var id = null
           var lastReportTime = new Date()
           pull(
