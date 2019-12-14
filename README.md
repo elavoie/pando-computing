@@ -216,7 +216,7 @@ The information object contains the following properties:
     
 ## Documentation and Publications
  
-More detail and worked out examples are available in the [handbook](https://github.com/elavoie/pando-handbook).
+More detail and worked out examples are available in the [handbook](https://github.com/elavoie/pando-handbook). You may also look at the [artifact instructions](http://ericklavoie.com/pubs/middleware19-artifact.pdf) for the [Middleware 2019 paper](https://dl.acm.org/citation.cfm?id=3361539).
 Detailed explanations of the motivation, design, and experiments are available in the following publications:
 * [Personal Volunteer Computing](https://arxiv.org/abs/1804.01482)
 * [Pando: Personal Volunteer Computing in Browsers](https://arxiv.org/abs/1803.08426)
