@@ -54,7 +54,7 @@
     "stream-to-pull-stream": "^1.7.3",
     "webrtc-bootstrap": "^4.4.1",
     "webrtc-tree-overlay": "^1.0.13",
-    "ws": "^1.1.5"
+    "ws": "^3.3.1"
   },
   "devDependencies": {
     "bignumber.js": "^4.1.0",
