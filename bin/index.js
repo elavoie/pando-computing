@@ -111,6 +111,7 @@ bundle(args.module, function (err, bundlePath) {
   } else {
     var server = null
     var host = null
+    // create local server or connect public server
     if (!args.host) {
       log('creating bootstrap server')
       var publicDir = path.join(__dirname, '../local-server/public')

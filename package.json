@@ -7,7 +7,7 @@
   },
   "main": "src/index.js",
   "scripts": {
-    "postinstall": "browserify src/browser.js -r -s volunteer -o public/volunteer.js; browserify src/plotly.js -r -s plotly -o root/plotly.js",
+    "postinstall": "browserify -g uglifyify src/browser.js -r -s volunteer -o public/volunteer.js; browserify src/plotly.js -r -s plotly -o root/plotly.js",
     "test": "tape test/index.js"
   },
   "repository": {
@@ -52,6 +52,7 @@
     "simple-websocket": "^7.2.0",
     "split": "^1.0.1",
     "stream-to-pull-stream": "^1.7.3",
+    "uglifyify": "^5.0.2",
     "webrtc-bootstrap": "^4.4.1",
     "webrtc-tree-overlay": "^1.0.13",
     "ws": "^1.1.5"

@@ -1,3 +1,4 @@
+[ADD NEW CONTRIBUTES]
 usage: pando MODULE [OPTIONS] ITEM1, ITEM2, ...
 
 MODULE is the file path to a Node.js module. The module must export an object
