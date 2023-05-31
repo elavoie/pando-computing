@@ -1,5 +1,6 @@
 <html>
   <head>
+    <link rel="stylesheet" href="bootstrap.min.css">
     <style>
       body {
         font-family: "Helvetica Neue", helvetica, arial;
@@ -18,41 +19,280 @@
     </style>
 
     <script>
+      localStorage.debug='webrtc-bootstrap*,simple-peer'
+      _log = console.log.bind(console)
       console.log = function (s) {
         var li = document.createElement('li');
         li.innerHTML = s;
         document.querySelector('#console').appendChild(li);
+        _log(s)
       }
     </script>
   </head>
 <body>
-  <p>If the connection is not automatically established after a few seconds,
-  alternatively try with <a id='ws-link' href='#ws'>WebSocket</a>. You can also retry with <a id='webrtc-link' href='#webrtc'>WebRTC</a>.
-  </p>
-  <script>
-    var wsLink = document.getElementById('ws-link')
-    wsLink.onclick = function () {
-      window.location.reload()
-    }
-    var webrtcLink = document.getElementById('webrtc-link')
-    webrtcLink.onclick = function () {
-      window.location.reload()
-    }
-  </script>
+
+  <!-- Modal Device Selection -->
+<div class="modal fade" id="modalDeviceSelection" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalDeviceSelectionLabel">Device Selection</h5>
+      </div>
+      <div class="modal-body">
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Device</button>
+            <div class="dropdown-menu" id='modal-device-list'>
+            </div>
+          </div>
+          <input id='modal-device-name' type="text" class="form-control" aria-label="Text input with dropdown button" >
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="submit(null, document.getElementById('modal-device-name')); countdown(seconds, 'Connecting', start); $('#modalDeviceSelection').modal('toggle')">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div id='visualization'></div>
+  <h1>status</h1>
+<div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Device</button>
+    <div class="dropdown-menu" id='device-list'>
+    </div>
+  </div>
+  <input id='device-name' type="text" class="form-control" aria-label="Text input with dropdown button" onkeypress="return submit(event, document.getElementById('device-name'))">
+</div>
+  <div class="input-group">
+    <div class="input-group-prepend">
+      <span class="input-group-text">Throughput</span>
+    </div>
+    <input type="text" class="form-control" id="throughput" placeholder="0.0">
+  </div>
+  <div class="input-group">
+    <div class="input-group-prepend">
+      <span class="input-group-text">CPU Load</span>
+    </div>
+    <input type="text" class="form-control" id="cpu-usage" placeholder="">
+  </div>
+  <div class="input-group">
+    <div class="input-group-prepend">
+      <span class="input-group-text">Data Transfer Load</span>
+    </div>
+    <input type="text" class="form-control" id="data-transfer-load" placeholder="">
+  </div>
+  <p><a id='status'></a></p>
   <h1>console.log</h1>
   <ul id='console'></ul>
+  <script src='simplewebsocket.min.js'></script>
   <script src='volunteer.js'></script>
-  <script src='bundle.js'></script>
+  <script src="jquery.min.js"></script>
+  <script src="popper.min.js"></script>
+  <script src="bootstrap.min.js"></script>
   <script src='config.js'></script>
   <script>
-    var host = location.origin.replace(/^http:\/\//, '')
-    if (location.hash === '#ws') {
-      //volunteer['ws'](host, bundle)
-    } else if (location.hash === '#webrtc') {
-      volunteer['webrtc'](host, bundle, window.pando.config)
+    var secure = location.origin.indexOf('https:\/\/') > -1
+
+    var host = null
+    if (secure) {
+      host = location.origin.replace(/^https:\/\//, '')
     } else {
-      volunteer['webrtc'](host, bundle, window.pando.config)
+      host = location.origin.replace(/^http:\/\//, '')
     }
+    window.pando.config.host = host
+
+    var seconds = 3
+    var restarting = false
+    var connectTimeout = null
+    var reporter = null
+    var processor = null
+
+    function protocol () {
+      if (location.hash.includes('protocol=websocket')) {
+        return 'protocol=websocket'
+      } else if (location.hash.includes('protocol=webrtc')) {
+        return 'protocol=webrtc'
+      } else {
+        return 'protocol=websocket'
+      }
+    }
+
+    function restart () {
+      if (restarting) return
+      console.log('restart()')
+      document.querySelector('#status').textContent = 'Restarting' 
+      restarting = true
+      if (processor) processor.close()
+      processor = null
+      countdown(seconds, 'Connecting', start)
+    }
+
+    function countdown (seconds, actionText, cb) {
+      if (seconds <= 0) {
+        document.querySelector('#status').textContent = actionText;
+        cb()
+      } else {
+        document.querySelector('#status').textContent = actionText + ' in ' + seconds + ' seconds'
+        setTimeout(function () { countdown(seconds-1, actionText, cb) }, 1000)
+      }
+    }
+
+    // Add default list of devices
+    var deviceList = [
+      'MacBook Air 2011',
+      'iPhone SE',
+      'MacBook Pro 2016',
+      'Samsung Galaxy S6',
+      'Samsung Galaxy S7',
+      'OPPO F1FX 2016',
+      'Lenovo P2a42 2016',
+      'Huawei P10 lite 2017',
+      'Wileyfox Storm 2016',
+      'iPhone 7',
+      'LG G6 H870 2017',
+      'iPad A1822 (5th Gen) 2017',
+      'Samsung A3 2016',
+      'Samsung Galaxy S7',
+      'iPhone 6S'
+    ]
+    deviceList.sort()
+    deviceListMenu = document.getElementById('device-list')
+    deviceList.forEach(function addItem (name) {
+      var a = document.createElement('a')
+      a.className = 'dropdown-item'
+      a.innerText = name
+      var id = name.replace(/\s/g, '_')
+      a.href = '#' + protocol() + ';device=' + id + ';'
+      a.id = id
+      a.onclick = function () { replaceDeviceName(name) } 
+      deviceListMenu.appendChild(a)
+    })
+    modalDeviceListMenu = document.getElementById('modal-device-list')
+    deviceList.forEach(function addItem (name) {
+      var a = document.createElement('a')
+      a.className = 'dropdown-item'
+      a.innerText = name
+      var id = name.replace(/\s/g, '_')
+      a.href = '#' + protocol() + ';device=' + id + ';'
+      a.id = id
+      a.onclick = function () { 
+        replaceDeviceName(name) 
+        var deviceName = document.getElementById('modal-device-name')
+        deviceName.value = name
+      } 
+      modalDeviceListMenu.appendChild(a)
+    })
+
+    function getDeviceName() {
+      if (location.hash.includes('device=')) {
+        var m = location.hash.match('device=([^;]*);')  
+        var deviceName = document.getElementById('device-name')
+        deviceName.value = m[1].replace(/_/g, ' ')
+        return deviceName.value
+      }
+      return ''
+    }
+    function replaceDeviceName(name) {
+      var deviceName = document.getElementById('device-name')
+      deviceName.value = name
+    }
+
+    function submit(event, deviceNameInput) {
+      if (event !== null && event.keyCode !== 13) return
+
+      var hash = location.hash.replace(/^#*;*/, '#;')
+      document.getElementById('device-name').value = deviceNameInput.value
+      var deviceName = deviceNameInput.value.replace(/\s/g, '_')
+      if (hash.includes('device=')) {
+        hash = hash.replace(/device=.*;/, 'device=' + deviceName + ';')
+      } else {
+        hash = hash + 'device=' + deviceName + ';'
+      }
+      var url =  location.protocol + '\/\/' + location.host + '\/' + hash
+      location.assign(url)
+    }
+
+    if (getDeviceName().length < 1) {
+      $('#modalDeviceSelection').modal('show')
+    }
+  </script>
+  <script src='bundle.js'></script>
+
+  <script>
+
+    function start () {
+      console.log('start()')
+      processor = null
+      window.pando.config.secure = secure
+      setTimeout(function () {
+        if (location.hash.includes('protocol=webrtc')) {
+          console.log('connecting over WebRTC')
+          window.pando.config.protocol = 'webrtc'
+          processor = volunteer['webrtc'](host, bundle, window.pando.config)
+        } else {
+          console.log('connecting over WebSocket')
+          var protocol = secure ? 'wss://' : 'ws://'
+          window.pando.config.protocol = 'websocket'
+          processor = volunteer['websocket'](protocol + host + '/volunteer', bundle)
+        }
+        processor.on('status', function (summary) {
+          if (reporter) {
+            console.log('reporting status')
+            reporter.send(JSON.stringify(summary))
+          }
+        })
+        processor.on('close', function () {
+          restart()
+          if (reporter) {
+            console.log('reporting processor closed')
+            reporter.send(JSON.stringify({ type: 'STATUS', closed: true }))
+          }
+        })
+        processor.on('error', function (err) {
+          restart()
+          if (reporter) {
+            console.log('reporting processor error')
+            reporter.send(JSON.stringify({ type: 'STATUS', error: err }))
+          }
+        })
+        processor.on('ready', function () {
+          console.log('cleared restart timeout')
+          document.querySelector('#status').textContent = 'Connected'
+          clearTimeout(connectTimeout)
+          restarting = false
+        })
+
+        // If connection does not succeed, keep retrying until it does
+        console.log('setting restart timeout')
+        connectTimeout = setTimeout(function () {
+            console.log('connection timeout')
+            if (reporter) {
+              console.log('reporting connection timeout')
+              reporter.send(JSON.stringify({ type: 'STATUS', error: 'Connection timeout, restarting' }))
+            }
+            restarting = false
+            restart()
+        }, 30 * 1000)
+
+        window.pando.processor = processor
+      }, Math.floor(Math.random() * 1000)) // Random delay of up to 1s to avoid all nodes connecting at the same time
+    }
+
+
+    if (getDeviceName().length > 0) {
+      countdown(0, 'Connecting', start)
+    }
+
+    if (window.pando.config.globalMonitoring) {
+      var protocol = secure ? 'wss://' : 'ws://'
+      var socket = SimpleWebsocket(protocol + host + '/monitoring/processor')
+      socket.on('connect', function () {
+        console.log('reporter connected')
+        reporter = socket  
+      })
+    } 
   </script>
 </body>
 </html>

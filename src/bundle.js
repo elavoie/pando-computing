@@ -8,7 +8,6 @@ module.exports = function (modulePath, cb) {
     basedir: process.cwd(),
     standalone: 'bundle'
   })
-  .transform('uglifyify', { global: true })
   .bundle()
   .pipe(fs.createWriteStream(outputPath))
   .on('close', function () {
