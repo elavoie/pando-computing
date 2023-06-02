@@ -5,8 +5,8 @@ var log = debug("pando-computing");
 var logMonitoring = debug("pando-computing:monitoring");
 var logMonitoringChildren = debug("pando-computing:monitoring:children");
 var logHeartbeat = debug("pando-computing:heartbeat");
-var parse = require("../src/parse.js");
-var bundle = require("../src/bundle.js");
+// var parse = require("../src/parse.js");
+// var bundle = require("../src/bundle.js");
 var electronWebRTC = require("electron-webrtc");
 var createProcessor = require("../src/processor.js");
 var Node = require("webrtc-tree-overlay");
@@ -16,34 +16,34 @@ var os = require("os");
 var fs = require("fs");
 var path = require("path");
 var website = require("simple-updatable-website");
-var http = require("http");
-var WebSocket = require("ws");
-var express = require("express");
+// var http = require("http");
+// var WebSocket = require("ws");
+// var express = require("express");
 var probe = require("pull-probe");
 var mkdirp = require("mkdirp");
 var sync = require("pull-sync");
-var toPull = require("stream-to-pull-stream");
+// var toPull = require("stream-to-pull-stream");
 var limit = require("pull-limit");
-const portfinder = require("portfinder");
+// const portfinder = require("portfinder");
 var duplexWs = require("pull-ws");
+// var cors = require("cors");
 
-// var args = parse(process.argv.slice(2));
+// const app = express();
 
-var wrtc = electronWebRTC({ headless: true });
 
 function getIPAddresses() {
   var ifaces = os.networkInterfaces();
   var addresses = [];
-
+  
   Object.keys(ifaces).forEach(function (ifname) {
     var alias = 0;
-
+    
     ifaces[ifname].forEach(function (iface) {
       if (iface.family !== "IPv4" || iface.internal !== false) {
         // skip over internal (i.e. 127.0.0.1) and non-ipv4 addresses
         return;
       }
-
+      
       if (alias >= 1) {
         // this single interface has multiple ipv4 addresses
         addresses.push(iface.address);
@@ -55,13 +55,6 @@ function getIPAddresses() {
   });
   return addresses;
 }
-
-// process.stdout.on("error", function (err) {
-//   log("process.stdout:error(" + err + ")");
-//   if (err.code === "EPIPE") {
-//     process.exit(1);
-//   }
-// });
 
 class Project {
   constructor({
@@ -78,6 +71,7 @@ class Project {
     reportingInterval = 3,
     bootstrapTimeout = 60,
     syncStdio = false,
+    projectID
   }) {
     this.port = port;
     this.server = null;
@@ -100,20 +94,24 @@ class Project {
     this.syncStdio = syncStdio;
     this.statusSocket = null;
     this.wsVolunteersStatus = {};
-
+    this.projectID = projectID;
+    
+    var wrtc = electronWebRTC({ headless: true });
     this.start = () => {
-      bundle(this.module, (err, bundlePath) => {
-        if (err) {
-          console.error(err);
-          process.exit(1);
-        }
 
-        const _this = this;
-
-        log("creating bootstrap server");
-        var publicDir = path.join(__dirname, "../public-server/public");
-        mkdirp.sync(publicDir);
-        this.server = new Server({
+      // bundle(this.module, (err, bundlePath) => {
+        //   if (err) {
+          //     console.error(err);
+          //     process.exit(1);
+          //   }
+          
+          const _this = this;
+          
+          log("creating bootstrap server");
+          var publicDir = path.join(__dirname, "../local-server/public");
+          // var publicDir = path.join(__dirname, "../testLocal");
+          mkdirp.sync(publicDir);
+          this.server = new Server({
           secret: this.secret,
           publicDir: publicDir,
           port: this.port,
@@ -238,7 +236,7 @@ class Project {
         log("Uploading files to " + this.host + " with secret " + this.secret);
         website.upload(
           [
-            bundlePath,
+            // bundlePath,
             path.join(__dirname, "../src/parse.js"),
             path.join(__dirname, "../public/config.js"),
             path.join(__dirname, "../public/index.html"),
@@ -371,31 +369,54 @@ class Project {
             );
           }
         );
-      });
+      }
     };
   }
+
+
+module.exports = {
+  getIPAddresses,
+  Project
 }
 
-portfinder.getPort(function (err, port) {
-  if (err) throw err;
+// const allowedIPs = ['1::1'];
 
-  const projectA = new Project({
-    port: 8000,
-    module: "examples/square.js",
-    items: [1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8,1, 2, 3, 4, 5, 6, 7, 8,1, 2, 3, 4, 5, 6, 7, 8,1, 2, 3, 4, 5, 6, 7, 8,9],
-  });
+// // Middleware to check request IP against the allowed IPs
+// const checkIP = (req, res, next) => {
+//   const requestIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
-  projectA.start();
-});
+//   // Check if the request IP is in the allowed IPs
+//   if (!allowedIPs.includes(requestIP)) {
+//     return res.status(403).json({ message: 'Forbidden' });
+//   }
 
-// portfinder.getPort(function (err, port) {
-//   if (err) throw err;
+//   // If IP is allowed, proceed with the request
+//   next();
+// };
 
-//   const projectA = new Project({
-//     port: 8002,
-//     module: "examples/square.js",
-//     items: [100, 200, 300, 400, 500, 600, 700, 800, 100, 200, 300, 400, 500, 600, 700, 800,100, 200, 300, 400, 500, 600, 700, 800,100, 200, 300, 400, 500, 600, 700, 800,900],
+// const run = (calcreateProcessorlback) => {
+//   portfinder.getPort(function (err, port) {
+//     if (err) throw err;
+
+//     const project = new Project({
+//       port,
+//       module: "examples/square-no-delay.js",
+//       items: [1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+//     }) 
+//     project.start();
+//     // Pass the port value to the callback function
+//     callback(port);
 //   });
+// }
 
-//   projectA.start();
+// app.get('/number', checkIP, (req, res) => {
+//   // Call the run function and pass a callback function
+//   run((port) => {
+//     // Send back the port as the response
+//     res.send(`The port is: ${port}`);
+//   });
+// });
+
+// app.listen(3000, () => {
+//   console.log(`Server is running on port `)
 // });
