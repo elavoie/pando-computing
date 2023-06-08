@@ -43,6 +43,7 @@
     "plotly.js-dist": "1.43.0",
     "popper.js": "1.14.3",
     "portfinder": "^1.0.32",
+    "promise.allsettled": "^1.0.6",
     "pull-lend-stream": "^1.2.2",
     "pull-limit": "^1.2.2",
     "pull-probe": "^1.0.2",
