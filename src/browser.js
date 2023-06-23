@@ -57,10 +57,12 @@ module.exports['websocket'] = function (host, bundle) {
       log('starting processing')
     })
     .on('data', function (x) {
+      processor.emit('input', x)
       log('processing input: ' + x)
       setTimeout(function () {
         bundle['/pando/1.0.0'](x, function (err, x) {
           if (err) return socket.destroy()
+          processor.emit('output', x)
           socket.send(zlib.gzipSync(Buffer.from(String(x))).toString('base64'))
         })
       }, 0)
