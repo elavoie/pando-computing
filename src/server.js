@@ -1,3 +1,4 @@
+require('dotenv').config()
 var express = require("express");
 // var cors = require('cors')
 var portfinder = require("portfinder");
@@ -8,12 +9,6 @@ var allSettled = require("promise.allsettled");
 const app = express();
 app.use(express.json()); // Middleware to parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Middleware to parse URL-encoded bodies
-
-AWS.config.update({
-  region: "ap-southeast-2",
-  accessKeyId: "AKIAV6JUFBZ7HTPRPCRR",
-  secretAcesssKey: "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",
-});
 
 const allowedIPs = ["::ffff:127.0.0.1"];
 

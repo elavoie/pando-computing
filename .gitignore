@@ -11,3 +11,5 @@ public-server/**/*
 test/results/speedup/**/*
 test/results/throughput/**/*
 root/plotly.js
+*.pem
+*.env
