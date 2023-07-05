@@ -19,6 +19,9 @@ var mkdirp = require("mkdirp");
 var sync = require("pull-sync");
 var limit = require("pull-limit");
 var duplexWs = require("pull-ws");
+var express = require("express");
+var http = require("http");
+var WebSocket = require("ws");
 
 function getIPAddresses() {
   var ifaces = os.networkInterfaces();
@@ -68,7 +71,6 @@ class Project {
     this.host = null;
     this.wsVolunteersStatus = {};
     this.statusSocket = null;
-    // this.module = path.join(process.cwd(), module);
     this.secret = secret;
     this.seed = seed;
     this.heartbeat = heartbeat;
@@ -81,9 +83,8 @@ class Project {
     this.startIdle = true;
     this.items = pull.values(items.map((x) => String(x)));
     this.syncStdio = syncStdio;
-    this.statusSocket = null;
     this.wsVolunteersStatus = {};
-    // this.module = "examples/square.js";
+    this.monitoringPort = port + 1;
 
     var wrtc = electronWebRTC({ headless: true });
     this.start = () => {
@@ -153,7 +154,7 @@ class Project {
           }
           ws.isAlive = false;
           ws.ping(function () {});
-        }, args.heartbeat);
+        }, this.heartbeat);
         ws.addEventListener("close", function () {
           clearInterval(heartbeat);
           heartbeat = null;
@@ -176,7 +177,7 @@ class Project {
               var info = JSON.parse(data);
               id = info.id;
               var time = new Date();
-              this.wsVolunteersStatus[info.id] = {
+              _this.wsVolunteersStatus[info.id] = {
                 id: info.id,
                 timestamp: time,
                 lastReportInterval: time - lastReportTime,
@@ -186,7 +187,7 @@ class Project {
             },
             function () {
               if (id) {
-                delete this.wsVolunteersStatus[id];
+                delete _this.wsVolunteersStatus[id];
               }
             }
           )
@@ -275,6 +276,7 @@ class Project {
             var volunteers = {};
 
             // Adding volunteers connected over WebSockets
+            // console.log(_this.wsVolunteersStatus);
             for (var id in _this.wsVolunteersStatus) {
               volunteers[id] = _this.wsVolunteersStatus[id];
             }
@@ -297,7 +299,8 @@ class Project {
                 " leaf nb: " +
                 rootStatus.nbLeafNodes
             );
-
+            //REPORT
+            console.log(rootStatus);
             if (_this.statusSocket) {
               log("sending status to monitoring page");
               _this.statusSocket.send(status);
@@ -349,6 +352,20 @@ class Project {
           );
         }
       );
+
+      this.app = express();
+      this.wss = WebSocket.Server({
+        server: http.createServer(this.app).listen(this.monitoringPort),
+      });
+      this.wss.on("connection/root-status", (socket) => {
+        _this.statusSocket = socket;
+        socket.onerror = function () {
+          _this.statusSocket = null;
+        };
+        socket.onclose = function () {
+          _this.statusSocket = null;
+        };
+      });
     };
   }
 }
